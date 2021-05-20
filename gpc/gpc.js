@@ -56,7 +56,7 @@ class Point {
 }
 
 ////////////// CLASS ArrayHelper ////////////////////////////////////
-gpcas.util.ArrayHelper = class {
+class ArrayHelper {
   static create2DArray(x, y) {
     const a = []
     for (let i = 0; i < x; i++) {
@@ -153,7 +153,6 @@ gpcas.util.ArrayHelper = class {
 
 /////////////// END ArrayHelper  ////////////////////////////////////////////////
 
-var ArrayHelper = gpcas.util.ArrayHelper
 ////////////////// CLASS ArrayList  /////////////////////////
 
 gpcas.util.ArrayList = function (arr) {
@@ -2374,7 +2373,7 @@ gpcas.geometry.Polygon.prototype.fromArray = function (v) {
 
 /*Normalize vertices in polygon to be ordered clockwise from most left point*/
 gpcas.geometry.Polygon.prototype.normalize = function () {
-  return gpcas.util.ArrayHelper.sortPointsClockwise(this.vertices)
+  return ArrayHelper.sortPointsClockwise(this.vertices)
 }
 gpcas.geometry.Polygon.prototype.getVertexIndex = function (vertex) {
   for (var i = 0; i < this.vertices.length; i++) {
@@ -3061,14 +3060,14 @@ gpcas.geometry.TopPolygonNode.prototype.print = function () {
   //console.log("---- out_poly ----");
   var top_node = this.top_node
   var c = 0
-  var npoly_node = null
-  for (var poly_node = top_node; poly_node != null; poly_node = npoly_node) {
+  let npoly_node = null
+  for (let poly_node = top_node; poly_node != null; poly_node = npoly_node) {
     //console.log("contour="+c+"  active="+poly_node.active+"  hole="+poly_node.proxy.hole);
     npoly_node = poly_node.next
     if (poly_node.active != 0) {
-      var v = 0
+      const v = 0
       for (
-        var vtx = poly_node.proxy.v[Clip.LEFT];
+        let vtx = poly_node.proxy.v[Clip.LEFT];
         vtx != null;
         vtx = vtx.next
       ) {
