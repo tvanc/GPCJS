@@ -1,0 +1,23 @@
+{
+  "name": "gpcjs",
+  "version": "1.0.0",
+  "description": "GPC stands for General Polygon Clipping , a library written in C to solve polygon operation (difference, intersection, union , and xor). This library is powerfull enough and has been ported to many programming languages.\r Visit : http://www.cs.man.ac.uk/~toby/gpc/",
+  "main": "main.js",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^2.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tvanc/GPCJS.git"
+  },
+  "author": "Travis Van Couvering",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tvanc/GPCJS/issues"
+  },
+  "homepage": "https://github.com/tvanc/GPCJS#readme"
+}
