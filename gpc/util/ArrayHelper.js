@@ -1,6 +1,6 @@
-import Point from "../geometry/Point"
-import { equals } from "./index"
-import ArrayList from "./ArrayList"
+import Point from "../geometry/Point.js"
+import { equals } from "./index.js"
+import ArrayList from "./ArrayList.js"
 
 export default class ArrayHelper {
   static create2DArray(x) {

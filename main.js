@@ -1,8 +1,8 @@
-import "./gpc/gpc.js"
+import { gpcas } from "./gpc/gpc.js"
+import Point from "./gpc/geometry/Point.js"
 
 //define classes for GPC
 var PolyDefault = gpcas.geometry.PolyDefault
-var ArrayList = gpcas.util.ArrayList
 var PolySimple = gpcas.geometry.PolySimple
 var Clip = gpcas.geometry.Clip
 var OperationType = gpcas.geometry.OperationType
@@ -27,43 +27,40 @@ var ItNode = gpcas.geometry.ItNode
 
 var poly1, poly2
 
-var context
-var init = function () {
-  var canvas = document.getElementById("canvas")
-  context = canvas.getContext("2d")
+const canvas = document.getElementById("canvas")
+const context = canvas.getContext("2d")
 
-  //define polygons
-  var vertices1 = [
-    [61, 68],
-    [145, 122],
-    [186, 94],
-    [224, 135],
-    [204, 211],
-    [105, 200],
-    [141, 163],
-    [48, 139],
-    [74, 117],
-  ]
-  poly1 = createPoly(vertices1)
+//define polygons
+const vertices1 = [
+  [61, 68],
+  [145, 122],
+  [186, 94],
+  [224, 135],
+  [204, 211],
+  [105, 200],
+  [141, 163],
+  [48, 139],
+  [74, 117],
+]
+poly1 = createPoly(vertices1)
 
-  var vertices2 = [
-    [131, 84],
-    [224, 110],
-    [174, 180],
-    [120, 136],
-    [60, 167],
-  ]
-  poly2 = createPoly(vertices2)
-  //bring to screen
-  drawPoly(poly1, "blue", 0, -30)
-  drawPoly(poly2, "red", 0, -30)
+const vertices2 = [
+  [131, 84],
+  [224, 110],
+  [174, 180],
+  [120, 136],
+  [60, 167],
+]
+poly2 = createPoly(vertices2)
+//bring to screen
+drawPoly(poly1, "blue", 0, -30)
+drawPoly(poly2, "red", 0, -30)
 
-  //listen to buttons
-  document.getElementById("difBtn").addEventListener("click", difference)
-  document.getElementById("intBtn").addEventListener("click", intersection)
-  document.getElementById("unBtn").addEventListener("click", union)
-  document.getElementById("xorBtn").addEventListener("click", xor)
-}
+//listen to buttons
+document.getElementById("difBtn").addEventListener("click", difference)
+document.getElementById("intBtn").addEventListener("click", intersection)
+document.getElementById("unBtn").addEventListener("click", union)
+document.getElementById("xorBtn").addEventListener("click", xor)
 
 var difference = function (e) {
   clearScreen()
@@ -101,13 +98,15 @@ var xor = function (e) {
   var diff = poly1.xor(poly2)
   drawPoly(diff, "green", 0, 150)
 }
-var createPoly = function (points) {
+
+function createPoly(points) {
   var res = new PolyDefault()
   for (var i = 0; i < points.length; i++) {
     res.addPoint(new Point(points[i][0], points[i][1]))
   }
   return res
 }
+
 var getPolygonVertices = function (poly) {
   var vertices = []
   var numPoints = poly.getNumPoints()
