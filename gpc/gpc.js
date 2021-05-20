@@ -4,40 +4,40 @@ gpcas.geometry = {}
 
 //////////
 
-function equals(x1, x) {
-  for (const p in x1) {
-    if (typeof x[p] == "undefined") {
+function equals(a, b) {
+  for (const p in Object.keys(a)) {
+    if (typeof b[p] == "undefined") {
       return false
     }
   }
 
-  for (const p in x1) {
-    if (x1[p]) {
-      switch (typeof x1[p]) {
+  for (const p in Object.keys(a)) {
+    if (a[p]) {
+      switch (typeof a[p]) {
         case "object":
-          if (!equals(x1[p], x[p])) {
+          if (!equals(a[p], b[p])) {
             return false
           }
           break
         case "function":
           if (
-            typeof x[p] == "undefined" ||
-            (p != "equals" && x1[p].toString() != x[p].toString())
+            typeof b[p] == "undefined" ||
+            (p !== "equals" && a[p].toString() !== b[p].toString())
           )
             return false
           break
         default:
-          if (x1[p] != x[p]) {
+          if (a[p] !== b[p]) {
             return false
           }
       }
     } else {
-      if (x[p]) return false
+      if (b[p]) return false
     }
   }
 
-  for (const p in x) {
-    if (typeof x1[p] == "undefined") {
+  for (const p in Object.keys(b)) {
+    if (typeof a[p] == "undefined") {
       return false
     }
   }
@@ -45,111 +45,110 @@ function equals(x1, x) {
   return true
 }
 ///point
-var Point = function (x, y) {
-  this.x = x
-  this.y = y
+class Point {
+  x
+  y
+
+  constructor(x, y) {
+    this.x = x
+    this.y = y
+  }
 }
+
 ////////////// CLASS ArrayHelper ////////////////////////////////////
-gpcas.util.ArrayHelper = function () {}
-var static = gpcas.util.ArrayHelper
-
-static.create2DArray = function (x, y) {
-  var a = []
-  for (var i = 0; i < x; i++) {
-    a[i] = []
-  }
-  return a
-}
-static.valueEqual = function (obj1, obj2) {
-  if (obj1 == obj2) return true
-  if (equals(obj1, obj2)) return true
-
-  return false
-}
-static.sortPointsClockwise = function (vertices) {
-  var isArrayList = false
-
-  if (vertices instanceof ArrayList) {
-    vertices = vertices.toArray()
-    isArrayList = true
+gpcas.util.ArrayHelper = class {
+  static create2DArray(x, y) {
+    const a = []
+    for (let i = 0; i < x; i++) {
+      a[i] = []
+    }
+    return a
   }
 
-  //point
-  var maxTop = null
-  var maxBottom = null
-  var maxLeft = null
-  var maxRight = null
-
-  var maxLeftIndex
-  var newVertices = vertices
-
-  for (var i = 0; i < vertices.length; i++) {
-    var vertex = vertices[i]
-
-    if (
-      maxTop == null ||
-      maxTop.y > vertex.y ||
-      (maxTop.y == vertex.y && vertex.x < maxTop.x)
-    ) {
-      maxTop = vertex
-    }
-    if (
-      maxBottom == null ||
-      maxBottom.y < vertex.y ||
-      (maxBottom.y == vertex.y && vertex.x > maxBottom.x)
-    ) {
-      maxBottom = vertex
-    }
-    if (
-      maxLeft == null ||
-      maxLeft.x > vertex.x ||
-      (maxLeft.x == vertex.x && vertex.y > maxLeft.y)
-    ) {
-      maxLeft = vertex
-      maxLeftIndex = i
-    }
-    if (
-      maxRight == null ||
-      maxRight.x < vertex.x ||
-      (maxRight.x == vertex.x && vertex.y < maxRight.y)
-    ) {
-      maxRight = vertex
-    }
+  static valueEqual(obj1, obj2) {
+    return obj1 === obj2 || equals(obj1, obj2)
   }
 
-  if (maxLeftIndex > 0) {
-    newVertices = []
-    var j = 0
-    for (var i = maxLeftIndex; i < vertices.length; i++) {
-      newVertices[j++] = vertices[i]
-    }
-    for (var i = 0; i < maxLeftIndex; i++) {
-      newVertices[j++] = vertices[i]
-    }
-    vertices = newVertices
-  }
+  static sortPointsClockwise(vertices) {
+    let isArrayList = vertices instanceof ArrayList
 
-  var reverse = false
-  for (var i = 0; i < vertices.length; i++) {
-    var vertex = vertices[i]
-    if (equals(vertex, maxBottom)) {
-      reverse = true
-      break
-    } else if (equals(vertex, maxTop)) {
-      break
+    if (isArrayList) {
+      vertices = vertices.toArray()
     }
-  }
-  if (reverse) {
-    newVertices = []
-    newVertices[0] = vertices[0]
-    var j = 1
-    for (var i = vertices.length - 1; i > 0; i--) {
-      newVertices[j++] = vertices[i]
-    }
-    vertices = newVertices
-  }
 
-  return isArrayList ? new ArrayList(vertices) : vertices
+    //point
+    let maxTop = new Point(Infinity, Infinity)
+    let maxBottom = new Point(-Infinity, -Infinity)
+    let maxLeft = new Point(Infinity, -Infinity)
+    let maxRight = new Point(-Infinity, Infinity)
+
+    let maxLeftIndex
+    let newVertices = vertices
+
+    for (let i = 0; i < vertices.length; i++) {
+      let vertex = vertices[i]
+
+      if (
+        maxTop.y > vertex.y ||
+        (maxTop.y === vertex.y && vertex.x < maxTop.x)
+      ) {
+        maxTop = vertex
+      }
+      if (
+        maxBottom.y < vertex.y ||
+        (maxBottom.y === vertex.y && vertex.x > maxBottom.x)
+      ) {
+        maxBottom = vertex
+      }
+      if (
+        maxLeft.x > vertex.x ||
+        (maxLeft.x === vertex.x && vertex.y > maxLeft.y)
+      ) {
+        maxLeft = vertex
+        maxLeftIndex = i
+      }
+      if (
+        maxRight.x < vertex.x ||
+        (maxRight.x === vertex.x && vertex.y < maxRight.y)
+      ) {
+        maxRight = vertex
+      }
+    }
+
+    if (maxLeftIndex > 0) {
+      newVertices = []
+      let j = 0
+      for (let i = maxLeftIndex; i < vertices.length; i++) {
+        newVertices[j++] = vertices[i]
+      }
+      for (let i = 0; i < maxLeftIndex; i++) {
+        newVertices[j++] = vertices[i]
+      }
+      vertices = newVertices
+    }
+
+    let reverse = false
+    for (let i = 0; i < vertices.length; i++) {
+      let vertex = vertices[i]
+      if (equals(vertex, maxBottom)) {
+        reverse = true
+        break
+      } else if (equals(vertex, maxTop)) {
+        break
+      }
+    }
+    if (reverse) {
+      newVertices = []
+      newVertices[0] = vertices[0]
+      let j = 1
+      for (let i = vertices.length - 1; i > 0; i--) {
+        newVertices[j++] = vertices[i]
+      }
+      vertices = newVertices
+    }
+
+    return isArrayList ? new ArrayList(vertices) : vertices
+  }
 }
 
 /////////////// END ArrayHelper  ////////////////////////////////////////////////
@@ -2375,74 +2374,7 @@ gpcas.geometry.Polygon.prototype.fromArray = function (v) {
 
 /*Normalize vertices in polygon to be ordered clockwise from most left point*/
 gpcas.geometry.Polygon.prototype.normalize = function () {
-  var maxLeftIndex
-  var vertices = this.vertices
-  var newVertices = this.vertices
-
-  for (var i = 0; i < vertices.length; i++) {
-    var vertex = vertices[i]
-
-    if (
-      maxTop == null ||
-      maxTop.y > vertex.y ||
-      (maxTop.y == vertex.y && vertex.x < maxTop.x)
-    ) {
-      maxTop = vertex
-    }
-    if (
-      maxBottom == null ||
-      maxBottom.y < vertex.y ||
-      (maxBottom.y == vertex.y && vertex.x > maxBottom.x)
-    ) {
-      maxBottom = vertex
-    }
-    if (
-      maxLeft == null ||
-      maxLeft.x > vertex.x ||
-      (maxLeft.x == vertex.x && vertex.y > maxLeft.y)
-    ) {
-      maxLeft = vertex
-      maxLeftIndex = i
-    }
-    if (
-      maxRight == null ||
-      maxRight.x < vertex.x ||
-      (maxRight.x == vertex.x && vertex.y < maxRight.y)
-    ) {
-      maxRight = vertex
-    }
-  }
-
-  if (maxLeftIndex > 0) {
-    newVertices = []
-    var j = 0
-    for (var i = maxLeftIndex; i < vertices.length; i++) {
-      newVertices[j++] = this.vertices[i]
-    }
-    for (var i = 0; i < maxLeftIndex; i++) {
-      newVertices[j++] = this.vertices[i]
-    }
-    vertices = newVertices
-  }
-  var reverse = false
-  for (var k = 0; k < this.vertices.length; k++) {
-    var vertex = this.vertices[k]
-    if (equals(vertex, maxBottom)) {
-      reverse = true
-      break
-    } else if (equals(vertex, maxTop)) {
-      break
-    }
-  }
-  if (reverse) {
-    newVertices = []
-    newVertices[0] = vertices[0]
-    var j = 1
-    for (var i = vertices.length - 1; i > 0; i--) {
-      newVertices[j++] = this.vertices[i]
-    }
-    vertices = newVertices
-  }
+  return gpcas.util.ArrayHelper.sortPointsClockwise(this.vertices)
 }
 gpcas.geometry.Polygon.prototype.getVertexIndex = function (vertex) {
   for (var i = 0; i < this.vertices.length; i++) {
