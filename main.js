@@ -1,3 +1,5 @@
+import "./gpc/gpc.js"
+
 //define classes for GPC
 var PolyDefault = gpcas.geometry.PolyDefault
 var ArrayList = gpcas.util.ArrayList
