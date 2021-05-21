@@ -3,6 +3,8 @@ import { equals } from "../util/index.js"
 import Point from "./Point.js"
 import Clip from "./Clip.js"
 import ArrayHelper from "../util/ArrayHelper.js"
+import PolySimple from "./PolySimple.js"
+import Rectangle from "./Rectangle.js"
 
 /**
  * <code>PolyDefault</code> is a default <code>Poly</code> implementation.
