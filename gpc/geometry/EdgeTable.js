@@ -1,6 +1,6 @@
 import ArrayList from "../util/ArrayList.js"
 import EdgeNode from "./EdgeNode.js"
-import Clip from "./Clip"
+import Clip from "./Clip.js"
 
 export default class HState {
   constructor() {

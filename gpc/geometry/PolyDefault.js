@@ -1,7 +1,7 @@
 import ArrayList from "../util/ArrayList.js"
 import { equals } from "../util/index.js"
 import Point from "./Point.js"
-import Clip from "./Clip"
+import Clip from "./Clip.js"
 import ArrayHelper from "../util/ArrayHelper.js"
 
 /**

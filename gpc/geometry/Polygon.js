@@ -1,5 +1,5 @@
-import Point from "./Point"
-import ArrayHelper from "../util/ArrayHelper"
+import Point from "./Point.js"
+import ArrayHelper from "../util/ArrayHelper.js"
 import { equals } from "../util/index.js"
 
 export default class Polygon {

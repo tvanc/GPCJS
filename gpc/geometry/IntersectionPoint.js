@@ -1,5 +1,3 @@
-import { gpcas } from "../gpc"
-
 export default class IntersectionPoint {
   /**
    * @param {Point} p1

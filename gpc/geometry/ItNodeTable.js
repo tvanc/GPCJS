@@ -1,5 +1,5 @@
-import Clip from "./Clip"
-import BundleState from "./BundleState"
+import Clip from "./Clip.js"
+import BundleState from "./BundleState.js"
 
 export default class ItNodeTable {
   top_node
