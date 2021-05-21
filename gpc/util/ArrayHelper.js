@@ -15,6 +15,10 @@ export default class ArrayHelper {
     return obj1 === obj2 || equals(obj1, obj2)
   }
 
+  /**
+   * @param vertices
+   * @returns {ArrayList|[]}
+   */
   static sortPointsClockwise(vertices) {
     let isArrayList = vertices instanceof ArrayList
 

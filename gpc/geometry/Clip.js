@@ -1,4 +1,7 @@
 import ArrayHelper from "../util/ArrayHelper.js"
+import OperationType from "./OperationType.js"
+import PolyDefault from "./PolyDefault.js"
+import AetTree from "./AetTree.js"
 
 export default class Clip {
   static DEBUG = false
@@ -21,7 +24,7 @@ export default class Clip {
    * @param p2        One of the polygons to performt he intersection with
    * @param polyClass The type of <code>Poly</code> to return
    */
-  intersection(p1, p2, polyClass = "PolyDefault") {
+  static intersection(p1, p2, polyClass = "PolyDefault") {
     return Clip.clip(OperationType.GPC_INT, p1, p2, polyClass)
   }
 
@@ -34,7 +37,7 @@ export default class Clip {
    * @param p2        One of the polygons to performt he union with
    * @param polyClass The type of <code>Poly</code> to return
    */
-  union(p1, p2, polyClass = "PolyDefault") {
+  static union(p1, p2, polyClass = "PolyDefault") {
     return Clip.clip(OperationType.GPC_UNION, p1, p2, polyClass)
   }
 
@@ -47,7 +50,7 @@ export default class Clip {
    * @param p2        One of the polygons to performt he xor with
    * @param polyClass The type of <code>Poly</code> to return
    */
-  xor(p1, p2, polyClass = "PolyDefault") {
+  static xor(p1, p2, polyClass = "PolyDefault") {
     return Clip.clip(OperationType.GPC_XOR, p1, p2, polyClass)
   }
 
@@ -60,7 +63,7 @@ export default class Clip {
    * @param p2        Second polygon
    * @param polyClass The type of <code>Poly</code> to return
    */
-  difference(p1, p2, polyClass = "PolyDefault") {
+  static difference(p1, p2, polyClass = "PolyDefault") {
     return Clip.clip(OperationType.GPC_DIFF, p2, p1, polyClass)
   }
 
@@ -83,13 +86,13 @@ export default class Clip {
        {
        throw new RuntimeException(e);
        }*/
-    if (polyClass == "PolySimple") {
+    if (polyClass === "PolySimple") {
       return new PolySimple()
     }
-    if (polyClass == "PolyDefault") {
+    if (polyClass === "PolyDefault") {
       return new PolyDefault()
     }
-    if (polyClass == "PolyDefault.class") {
+    if (polyClass === "PolyDefault.class") {
       return new PolyDefault()
     }
 
@@ -106,15 +109,15 @@ export default class Clip {
     if (
       (subj.isEmpty() && clip.isEmpty()) ||
       (subj.isEmpty() &&
-        (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF)) ||
-      (clip.isEmpty() && op == OperationType.GPC_INT)
+        (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF)) ||
+      (clip.isEmpty() && op === OperationType.GPC_INT)
     ) {
       return result
     }
 
     /* Identify potentialy contributing contours */
     if (
-      (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) &&
+      (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) &&
       !subj.isEmpty() &&
       !clip.isEmpty()
     ) {
@@ -125,13 +128,11 @@ export default class Clip {
     //console.log("CLIP " + clip);
 
     /* Build LMT */
-    var lmt_table = new LmtTable()
-    var sbte = new ScanBeamTreeEntries()
-    var s_heap = null
-    var c_heap = null
+    const lmt_table = new LmtTable()
+    const sbte = new ScanBeamTreeEntries()
 
     if (!subj.isEmpty()) {
-      s_heap = Clip.build_lmt(lmt_table, sbte, subj, Clip.SUBJ, op)
+      Clip.build_lmt(lmt_table, sbte, subj, Clip.SUBJ, op)
     }
     if (Clip.DEBUG) {
       //console.log("");
@@ -139,7 +140,7 @@ export default class Clip {
       lmt_table.print()
     }
     if (!clip.isEmpty()) {
-      c_heap = Clip.build_lmt(lmt_table, sbte, clip, Clip.CLIP, op)
+      Clip.build_lmt(lmt_table, sbte, clip, Clip.CLIP, op)
     }
     if (Clip.DEBUG) {
       //console.log("");
@@ -153,14 +154,14 @@ export default class Clip {
     }
 
     /* Build scanbeam table from scanbeam tree */
-    var sbt = sbte.build_sbt()
+    const sbt = sbte.build_sbt()
+    const parity = []
 
-    var parity = []
     parity[0] = Clip.LEFT
     parity[1] = Clip.LEFT
 
     /* Invert clip polygon for difference operation */
-    if (op == OperationType.GPC_DIFF) {
+    if (op === OperationType.GPC_DIFF) {
       parity[Clip.CLIP] = Clip.RIGHT
     }
 
@@ -168,19 +169,20 @@ export default class Clip {
       //console.log(sbt);
     }
 
-    var local_min = lmt_table.top_node
+    let local_min = lmt_table.top_node
+    const out_poly = new TopPolygonNode() // used to create resulting Poly
 
-    var out_poly = new TopPolygonNode() // used to create resulting Poly
-
-    var aet = new AetTree()
-    var scanbeam = 0
+    const aet = new AetTree()
+    let scanbeam = 0
 
     /* Process each scanbeam */
     while (scanbeam < sbt.length) {
       /* Set yb and yt to the bottom and top of the scanbeam */
-      var yb = sbt[scanbeam++]
-      var yt = 0.0
-      var dy = 0.0
+      const yb = sbt[scanbeam++]
+
+      let yt = 0
+      let dy = 0
+
       if (scanbeam < sbt.length) {
         yt = sbt[scanbeam]
         dy = yt - yb
@@ -190,7 +192,7 @@ export default class Clip {
 
       /* If LMT node corresponding to yb exists */
       if (local_min != null) {
-        if (local_min.y == yb) {
+        if (local_min.y === yb) {
           /* Add edges starting at this local minimum to the AET */
           for (
             var edge = local_min.first_bound;
@@ -216,8 +218,8 @@ export default class Clip {
 
       /* Set up bundle fields of first edge */
       aet.top_node.bundle[Clip.ABOVE][aet.top_node.type] =
-        aet.top_node.top.y != yb ? 1 : 0
-      aet.top_node.bundle[Clip.ABOVE][aet.top_node.type == 0 ? 1 : 0] = 0
+        aet.top_node.top.y !== yb ? 1 : 0
+      aet.top_node.bundle[Clip.ABOVE][aet.top_node.type === 0 ? 1 : 0] = 0
       aet.top_node.bstate[Clip.ABOVE] = BundleState.UNBUNDLED
 
       for (
@@ -226,19 +228,19 @@ export default class Clip {
         next_edge = next_edge.next
       ) {
         var ne_type = next_edge.type
-        var ne_type_opp = next_edge.type == 0 ? 1 : 0 //next edge type opposite
+        var ne_type_opp = next_edge.type === 0 ? 1 : 0 //next edge type opposite
 
         /* Set up bundle fields of next edge */
-        next_edge.bundle[Clip.ABOVE][ne_type] = next_edge.top.y != yb ? 1 : 0
+        next_edge.bundle[Clip.ABOVE][ne_type] = next_edge.top.y !== yb ? 1 : 0
         next_edge.bundle[Clip.ABOVE][ne_type_opp] = 0
         next_edge.bstate[Clip.ABOVE] = BundleState.UNBUNDLED
 
         /* Bundle edges above the scanbeam boundary if they coincide */
-        if (next_edge.bundle[Clip.ABOVE][ne_type] == 1) {
+        if (next_edge.bundle[Clip.ABOVE][ne_type] === 1) {
           if (
             Clip.EQ(e0.xb, next_edge.xb) &&
             Clip.EQ(e0.dx, next_edge.dx) &&
-            e0.top.y != yb
+            e0.top.y !== yb
           ) {
             next_edge.bundle[Clip.ABOVE][ne_type] ^=
               e0.bundle[Clip.ABOVE][ne_type]
@@ -272,7 +274,7 @@ export default class Clip {
           edge.bundle[Clip.ABOVE][Clip.SUBJ] +
           (edge.bundle[Clip.BELOW][Clip.SUBJ] << 1)
 
-        if (exists[Clip.CLIP] != 0 || exists[Clip.SUBJ] != 0) {
+        if (exists[Clip.CLIP] !== 0 || exists[Clip.SUBJ] !== 0) {
           /* Set bundle side */
           edge.bside[Clip.CLIP] = parity[Clip.CLIP]
           edge.bside[Clip.SUBJ] = parity[Clip.SUBJ]
@@ -283,40 +285,41 @@ export default class Clip {
           var tr = 0
           var tl = 0
           /* Determine contributing status and quadrant occupancies */
-          if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
+          if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
             contributing =
-              (exists[Clip.CLIP] != 0 &&
-                (parity[Clip.SUBJ] != 0 || horiz[Clip.SUBJ] != 0)) ||
-              (exists[Clip.SUBJ] != 0 &&
-                (parity[Clip.CLIP] != 0 || horiz[Clip.CLIP] != 0)) ||
-              (exists[Clip.CLIP] != 0 &&
-                exists[Clip.SUBJ] != 0 &&
-                parity[Clip.CLIP] == parity[Clip.SUBJ])
-            br = parity[Clip.CLIP] != 0 && parity[Clip.SUBJ] != 0 ? 1 : 0
+              (exists[Clip.CLIP] !== 0 &&
+                (parity[Clip.SUBJ] !== 0 || horiz[Clip.SUBJ] !== 0)) ||
+              (exists[Clip.SUBJ] !== 0 &&
+                (parity[Clip.CLIP] !== 0 || horiz[Clip.CLIP] !== 0)) ||
+              (exists[Clip.CLIP] !== 0 &&
+                exists[Clip.SUBJ] !== 0 &&
+                parity[Clip.CLIP] === parity[Clip.SUBJ])
+            br = parity[Clip.CLIP] !== 0 && parity[Clip.SUBJ] !== 0 ? 1 : 0
             bl =
-              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) != 0 &&
-              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 &&
+              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                 ? 1
                 : 0
             tr =
-              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] != HState.NH ? 1 : 0)) !=
+              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] !== HState.NH ? 1 : 0)) !==
                 0 &&
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0)) != 0
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0)) !==
+                0
                 ? 1
                 : 0
             tl =
               (parity[Clip.CLIP] ^
-                (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.CLIP]) !=
+                (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.CLIP]) !==
                 0 &&
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.SUBJ]) !=
+                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.SUBJ]) !==
                 0
                 ? 1
                 : 0
-          } else if (op == OperationType.GPC_XOR) {
-            contributing = exists[Clip.CLIP] != 0 || exists[Clip.SUBJ] != 0
+          } else if (op === OperationType.GPC_XOR) {
+            contributing = exists[Clip.CLIP] !== 0 || exists[Clip.SUBJ] !== 0
             br = parity[Clip.CLIP] ^ parity[Clip.SUBJ]
             bl =
               parity[Clip.CLIP] ^
@@ -324,44 +327,45 @@ export default class Clip {
               (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ])
             tr =
               parity[Clip.CLIP] ^
-              (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0))
+              (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0))
             tl =
               parity[Clip.CLIP] ^
-              (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
+              (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
               edge.bundle[Clip.BELOW][Clip.CLIP] ^
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
+                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
                 edge.bundle[Clip.BELOW][Clip.SUBJ])
-          } else if (op == OperationType.GPC_UNION) {
+          } else if (op === OperationType.GPC_UNION) {
             contributing =
-              (exists[Clip.CLIP] != 0 &&
-                (!(parity[Clip.SUBJ] != 0) || horiz[Clip.SUBJ] != 0)) ||
-              (exists[Clip.SUBJ] != 0 &&
-                (!(parity[Clip.CLIP] != 0) || horiz[Clip.CLIP] != 0)) ||
-              (exists[Clip.CLIP] != 0 &&
-                exists[Clip.SUBJ] != 0 &&
-                parity[Clip.CLIP] == parity[Clip.SUBJ])
-            br = parity[Clip.CLIP] != 0 || parity[Clip.SUBJ] != 0 ? 1 : 0
+              (exists[Clip.CLIP] !== 0 &&
+                (!(parity[Clip.SUBJ] !== 0) || horiz[Clip.SUBJ] !== 0)) ||
+              (exists[Clip.SUBJ] !== 0 &&
+                (!(parity[Clip.CLIP] !== 0) || horiz[Clip.CLIP] !== 0)) ||
+              (exists[Clip.CLIP] !== 0 &&
+                exists[Clip.SUBJ] !== 0 &&
+                parity[Clip.CLIP] === parity[Clip.SUBJ])
+            br = parity[Clip.CLIP] !== 0 || parity[Clip.SUBJ] !== 0 ? 1 : 0
             bl =
-              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
-              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
+              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                 ? 1
                 : 0
             tr =
-              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] != HState.NH ? 1 : 0)) !=
+              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] !== HState.NH ? 1 : 0)) !==
                 0 ||
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0)) != 0
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0)) !==
+                0
                 ? 1
                 : 0
             tl =
               (parity[Clip.CLIP] ^
-                (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.CLIP]) !=
+                (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.CLIP]) !==
                 0 ||
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.SUBJ]) !=
+                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.SUBJ]) !==
                 0
                 ? 1
                 : 0
@@ -374,13 +378,13 @@ export default class Clip {
           parity[Clip.SUBJ] ^= edge.bundle[Clip.ABOVE][Clip.SUBJ]
 
           /* Update horizontal state */
-          if (exists[Clip.CLIP] != 0) {
+          if (exists[Clip.CLIP] !== 0) {
             horiz[Clip.CLIP] =
               HState.next_h_state[horiz[Clip.CLIP]][
                 ((exists[Clip.CLIP] - 1) << 1) + parity[Clip.CLIP]
               ]
           }
-          if (exists[Clip.SUBJ] != 0) {
+          if (exists[Clip.SUBJ] !== 0) {
             horiz[Clip.SUBJ] =
               HState.next_h_state[horiz[Clip.SUBJ]][
                 ((exists[Clip.SUBJ] - 1) << 1) + parity[Clip.SUBJ]
@@ -399,7 +403,7 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.ERI:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -412,7 +416,7 @@ export default class Clip {
                 cf = edge.outp[Clip.BELOW]
                 break
               case VertexType.EMX:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -420,7 +424,7 @@ export default class Clip {
                 cf = null
                 break
               case VertexType.ILI:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -434,7 +438,7 @@ export default class Clip {
                 edge.outp[Clip.BELOW] = null
                 break
               case VertexType.IMX:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -443,7 +447,7 @@ export default class Clip {
                 edge.outp[Clip.BELOW] = null
                 break
               case VertexType.IMM:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -453,7 +457,7 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.EMM:
-                if (xb != px) {
+                if (xb !== px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -463,12 +467,12 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.LED:
-                if (edge.bot.y == yb) edge.outp[Clip.BELOW].add_left(xb, yb)
+                if (edge.bot.y === yb) edge.outp[Clip.BELOW].add_left(xb, yb)
                 edge.outp[Clip.ABOVE] = edge.outp[Clip.BELOW]
                 px = xb
                 break
               case VertexType.RED:
-                if (edge.bot.y == yb) edge.outp[Clip.BELOW].add_right(xb, yb)
+                if (edge.bot.y === yb) edge.outp[Clip.BELOW].add_right(xb, yb)
                 edge.outp[Clip.ABOVE] = edge.outp[Clip.BELOW]
                 px = xb
                 break
@@ -485,7 +489,7 @@ export default class Clip {
 
       /* Delete terminating edges from the AET, otherwise compute xt */
       for (var edge = aet.top_node; edge != null; edge = edge.next) {
-        if (edge.top.y == yb) {
+        if (edge.top.y === yb) {
           var prev_edge = edge.prev
           var next_edge = edge.next
 
@@ -496,15 +500,15 @@ export default class Clip {
 
           /* Copy bundle head state to the adjacent tail edge if required */
           if (
-            edge.bstate[Clip.BELOW] == BundleState.BUNDLE_HEAD &&
+            edge.bstate[Clip.BELOW] === BundleState.BUNDLE_HEAD &&
             prev_edge != null
           ) {
-            if (prev_edge.bstate[Clip.BELOW] == BundleState.BUNDLE_TAIL) {
+            if (prev_edge.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL) {
               prev_edge.outp[Clip.BELOW] = edge.outp[Clip.BELOW]
               prev_edge.bstate[Clip.BELOW] = BundleState.UNBUNDLED
               if (prev_edge.prev != null) {
                 if (
-                  prev_edge.prev.bstate[Clip.BELOW] == BundleState.BUNDLE_TAIL
+                  prev_edge.prev.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL
                 ) {
                   prev_edge.bstate[Clip.BELOW] = BundleState.BUNDLE_HEAD
                 }
@@ -512,7 +516,7 @@ export default class Clip {
             }
           }
         } else {
-          if (edge.top.y == yt) edge.xt = edge.top.x
+          if (edge.top.y === yt) edge.xt = edge.top.x
           else edge.xt = edge.bot.x + edge.dx * (yt - edge.bot.y)
         }
       }
@@ -537,10 +541,10 @@ export default class Clip {
           /* Only generate output for contributing intersections */
 
           if (
-            (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0 ||
-              e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
-            (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0 ||
-              e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
+            (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0 ||
+              e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
+            (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 ||
+              e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
           ) {
             var p = e0.outp[Clip.ABOVE]
             var q = e1.outp[Clip.ABOVE]
@@ -548,26 +552,26 @@ export default class Clip {
             var iy = intersect.point.y + yb
 
             var in_clip =
-              (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0 &&
-                !(e0.bside[Clip.CLIP] != 0)) ||
-              (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0 &&
-                e1.bside[Clip.CLIP] != 0) ||
-              (!(e0.bundle[Clip.ABOVE][Clip.CLIP] != 0) &&
-                !(e1.bundle[Clip.ABOVE][Clip.CLIP] != 0) &&
-                e0.bside[Clip.CLIP] != 0 &&
-                e1.bside[Clip.CLIP] != 0)
+              (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
+                !(e0.bside[Clip.CLIP] !== 0)) ||
+              (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
+                e1.bside[Clip.CLIP] !== 0) ||
+              (!(e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0) &&
+                !(e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0) &&
+                e0.bside[Clip.CLIP] !== 0 &&
+                e1.bside[Clip.CLIP] !== 0)
                 ? 1
                 : 0
 
             var in_subj =
-              (e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0 &&
-                !(e0.bside[Clip.SUBJ] != 0)) ||
-              (e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0 &&
-                e1.bside[Clip.SUBJ] != 0) ||
-              (!(e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
-                !(e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
-                e0.bside[Clip.SUBJ] != 0 &&
-                e1.bside[Clip.SUBJ] != 0)
+              (e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
+                !(e0.bside[Clip.SUBJ] !== 0)) ||
+              (e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
+                e1.bside[Clip.SUBJ] !== 0) ||
+              (!(e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
+                !(e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
+                e0.bside[Clip.SUBJ] !== 0 &&
+                e1.bside[Clip.SUBJ] !== 0)
                 ? 1
                 : 0
 
@@ -576,30 +580,30 @@ export default class Clip {
             var br = 0
             var bl = 0
             /* Determine quadrant occupancies */
-            if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
-              tr = in_clip != 0 && in_subj != 0 ? 1 : 0
+            if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
+              tr = in_clip !== 0 && in_subj !== 0 ? 1 : 0
               tl =
-                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) != 0 &&
-                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 &&
+                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                   ? 1
                   : 0
               br =
-                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) != 0 &&
-                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 &&
+                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                   ? 1
                   : 0
               bl =
                 (in_clip ^
                   e1.bundle[Clip.ABOVE][Clip.CLIP] ^
-                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !=
+                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !==
                   0 &&
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
-                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !=
+                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !==
                   0
                   ? 1
                   : 0
-            } else if (op == OperationType.GPC_XOR) {
+            } else if (op === OperationType.GPC_XOR) {
               tr = in_clip ^ in_subj
               tl =
                 in_clip ^
@@ -616,26 +620,26 @@ export default class Clip {
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
                   e0.bundle[Clip.ABOVE][Clip.SUBJ])
-            } else if (op == OperationType.GPC_UNION) {
-              tr = in_clip != 0 || in_subj != 0 ? 1 : 0
+            } else if (op === OperationType.GPC_UNION) {
+              tr = in_clip !== 0 || in_subj !== 0 ? 1 : 0
               tl =
-                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
-                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
+                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                   ? 1
                   : 0
               br =
-                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
-                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
+                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
+                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
                   ? 1
                   : 0
               bl =
                 (in_clip ^
                   e1.bundle[Clip.ABOVE][Clip.CLIP] ^
-                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !=
+                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !==
                   0 ||
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
-                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !=
+                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !==
                   0
                   ? 1
                   : 0
@@ -719,14 +723,14 @@ export default class Clip {
           } /* End of contributing intersection conditional */
 
           /* Swap bundle sides in response to edge crossing */
-          if (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0)
-            e1.bside[Clip.CLIP] = e1.bside[Clip.CLIP] == 0 ? 1 : 0
-          if (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0)
-            e0.bside[Clip.CLIP] = e0.bside[Clip.CLIP] == 0 ? 1 : 0
-          if (e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
-            e1.bside[Clip.SUBJ] = e1.bside[Clip.SUBJ] == 0 ? 1 : 0
-          if (e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
-            e0.bside[Clip.SUBJ] = e0.bside[Clip.SUBJ] == 0 ? 1 : 0
+          if (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0)
+            e1.bside[Clip.CLIP] = e1.bside[Clip.CLIP] === 0 ? 1 : 0
+          if (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0)
+            e0.bside[Clip.CLIP] = e0.bside[Clip.CLIP] === 0 ? 1 : 0
+          if (e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
+            e1.bside[Clip.SUBJ] = e1.bside[Clip.SUBJ] === 0 ? 1 : 0
+          if (e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
+            e0.bside[Clip.SUBJ] = e0.bside[Clip.SUBJ] === 0 ? 1 : 0
 
           /* Swap e0 and e1 bundles in the AET */
           var prev_edge = e0.prev
@@ -735,12 +739,12 @@ export default class Clip {
             next_edge.prev = e0
           }
 
-          if (e0.bstate[Clip.ABOVE] == BundleState.BUNDLE_HEAD) {
+          if (e0.bstate[Clip.ABOVE] === BundleState.BUNDLE_HEAD) {
             var search = true
             while (search) {
               prev_edge = prev_edge.prev
               if (prev_edge != null) {
-                if (prev_edge.bstate[Clip.ABOVE] != BundleState.BUNDLE_TAIL) {
+                if (prev_edge.bstate[Clip.ABOVE] !== BundleState.BUNDLE_TAIL) {
                   search = false
                 }
               } else {
@@ -769,7 +773,7 @@ export default class Clip {
         for (var edge = aet.top_node; edge != null; edge = edge.next) {
           var next_edge = edge.next
           var succ_edge = edge.succ
-          if (edge.top.y == yt && succ_edge != null) {
+          if (edge.top.y === yt && succ_edge != null) {
             /* Replace AET edge by its successor */
             succ_edge.outp[Clip.BELOW] = edge.outp[Clip.ABOVE]
             succ_edge.bstate[Clip.BELOW] = edge.bstate[Clip.ABOVE]
@@ -819,8 +823,8 @@ export default class Clip {
 
   static OPTIMAL(p, i) {
     return (
-      p.getY(Clip.PREV_INDEX(i, p.getNumPoints())) != p.getY(i) ||
-      p.getY(Clip.NEXT_INDEX(i, p.getNumPoints())) != p.getY(i)
+      p.getY(Clip.PREV_INDEX(i, p.getNumPoints())) !== p.getY(i) ||
+      p.getY(Clip.NEXT_INDEX(i, p.getNumPoints())) !== p.getY(i)
     )
   }
 
@@ -868,7 +872,7 @@ export default class Clip {
       }
     }
 
-    if (op == OperationType.GPC_INT) {
+    if (op === OperationType.GPC_INT) {
       /* For each subject contour, search for any clip contour overlaps */
       for (var s = 0; s < subj_num_poly; s++) {
         var overlap = false
@@ -952,7 +956,7 @@ export default class Clip {
           //                  lmt_node.first_bound = current_bound ;
           //               }
           done = true
-        } else if (e.bot.x == current_bound.bot.x) {
+        } else if (e.bot.x === current_bound.bot.x) {
           /* Do secondary sort on the dx field */
           if (e.dx < current_bound.dx) {
             /* Insert a new node mid-list */
@@ -1022,7 +1026,7 @@ export default class Clip {
           //               }
           //               current_edge = edge ;
           done = true
-        } else if (edge.xb == current_edge.xb) {
+        } else if (edge.xb === current_edge.xb) {
           /* Do secondary sort on the dx field */
           if (edge.dx < current_edge.dx) {
             /* Insert edge here (before the AET edge) */
@@ -1182,7 +1186,7 @@ export default class Clip {
                   : null
               ei.next_bound = null
               ei.bside[Clip.CLIP] =
-                op == OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
+                op === OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
               ei.bside[Clip.SUBJ] = Clip.LEFT
             }
             Clip.insert_bound(
@@ -1245,7 +1249,7 @@ export default class Clip {
                   : null
               ei.next_bound = null
               ei.bside[Clip.CLIP] =
-                op == OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
+                op === OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
               ei.bside[Clip.SUBJ] = Clip.LEFT
             }
             Clip.insert_bound(
@@ -1274,7 +1278,7 @@ export default class Clip {
       /* If new edge and ST edge don't cross */
       if (
         edge.xt >= st.xt ||
-        edge.dx == st.dx ||
+        edge.dx === st.dx ||
         Math.abs(den) <= Clip.GPC_EPSILON
       ) {
         /* No intersection - insert edge here (before the ST edge) */
@@ -1284,7 +1288,7 @@ export default class Clip {
         /* Compute intersection between new edge and ST edge */
         var r = (edge.xb - st.xb) / den
         var x = st.xb + r * (st.xt - st.xb)
-        var y = r * dy
+        const y = r * dy
 
         /* Insert the edge pointers and the intersection point in the IT */
         it.top_node = Clip.add_intersection(it.top_node, st.edge, edge, x, y)
@@ -1303,7 +1307,7 @@ export default class Clip {
     } else {
       if (it_node.point.y > y) {
         /* Insert a new node mid-list */
-        var existing_node = it_node
+        const existing_node = it_node
         it_node = new ItNode(edge0, edge1, x, y, existing_node)
       } else {
         /* Head further down the list */
