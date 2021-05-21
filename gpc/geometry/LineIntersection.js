@@ -1,5 +1,4 @@
 import LineHelper from "./LineHelper.js"
-import Point from "./Point.js"
 import IntersectionPoint from "./IntersectionPoint.js"
 import { equals } from "../util/index.js"
 
