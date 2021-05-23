@@ -1,4 +1,5 @@
 import Clip from "./Clip.js"
+import VertexNode from "./VertexNode.js"
 
 export default class PolygonNode {
   /** Active flag/vertex count */

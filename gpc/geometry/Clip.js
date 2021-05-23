@@ -181,7 +181,7 @@ export default class Clip {
       //console.log(sbt);
     }
 
-    let local_min = lmt_table.top_node
+    let local_min = lmt_table.top_node ?? null
     const out_poly = new TopPolygonNode() // used to create resulting Poly
 
     const aet = new AetTree()
@@ -203,14 +203,10 @@ export default class Clip {
       /* === SCANBEAM BOUNDARY PROCESSING ================================ */
 
       /* If LMT node corresponding to yb exists */
-      if (local_min != null) {
+      if (local_min) {
         if (local_min.y === yb) {
           /* Add edges starting at this local minimum to the AET */
-          for (
-            let edge = local_min.first_bound;
-            edge != null;
-            edge = edge.next_bound
-          ) {
+          for (let edge = local_min.first_bound; edge; edge = edge.next_bound) {
             Clip.add_edge_to_aet(aet, edge)
           }
 
@@ -278,7 +274,7 @@ export default class Clip {
       let cf = null
 
       /* Process each edge at this scanbeam boundary */
-      for (let edge = aet.top_node; edge != null; edge = edge.next) {
+      for (let edge = aet.top_node; edge; edge = edge.next) {
         exists[Clip.CLIP] =
           edge.bundle[Clip.ABOVE][Clip.CLIP] +
           (edge.bundle[Clip.BELOW][Clip.CLIP] << 1)
@@ -500,24 +496,24 @@ export default class Clip {
       } /* End of AET loop */
 
       /* Delete terminating edges from the AET, otherwise compute xt */
-      for (let edge = aet.top_node; edge != null; edge = edge.next) {
+      for (let edge = aet.top_node; edge; edge = edge.next) {
         if (edge.top.y === yb) {
           const { prev: prev_edge, next: next_edge } = edge
 
-          if (prev_edge != null) prev_edge.next = next_edge
+          if (prev_edge) prev_edge.next = next_edge
           else aet.top_node = next_edge
 
-          if (next_edge != null) next_edge.prev = prev_edge
+          if (next_edge) next_edge.prev = prev_edge
 
           /* Copy bundle head state to the adjacent tail edge if required */
           if (
             edge.bstate[Clip.BELOW] === BundleState.BUNDLE_HEAD &&
-            prev_edge != null
+            prev_edge
           ) {
             if (prev_edge.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL) {
               prev_edge.outp[Clip.BELOW] = edge.outp[Clip.BELOW]
               prev_edge.bstate[Clip.BELOW] = BundleState.UNBUNDLED
-              if (prev_edge.prev != null) {
+              if (prev_edge.prev) {
                 if (
                   prev_edge.prev.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL
                 ) {

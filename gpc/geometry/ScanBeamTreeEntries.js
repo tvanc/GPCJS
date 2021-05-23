@@ -18,14 +18,14 @@ export default class ScanBeamTreeEntries {
   }
 
   inner_build_sbt(entries, sbt, sbt_node) {
-    if (sbt_node.less !== null) {
+    if (sbt_node.less) {
       entries = this.inner_build_sbt(entries, sbt, sbt_node.less)
     }
 
     sbt[entries] = sbt_node.y
     entries++
 
-    if (sbt_node.more !== null) {
+    if (sbt_node.more) {
       entries = this.inner_build_sbt(entries, sbt, sbt_node.more)
     }
 
