@@ -63,7 +63,6 @@ document.getElementById("unBtn").addEventListener("click", union)
 document.getElementById("xorBtn").addEventListener("click", xor)
 
 function difference() {
-  debugger
   clearScreen()
 
   drawPoly(poly1, "blue", 0, -30)

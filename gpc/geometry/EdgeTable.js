@@ -2,7 +2,7 @@ import ArrayList from "../util/ArrayList.js"
 import EdgeNode from "./EdgeNode.js"
 import Clip from "./Clip.js"
 
-export default class HState {
+export default class EdgeTable {
   constructor() {
     this.m_List = new ArrayList()
   }

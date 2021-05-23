@@ -2,11 +2,23 @@ import ArrayHelper from "../util/ArrayHelper.js"
 import OperationType from "./OperationType.js"
 import PolyDefault from "./PolyDefault.js"
 import AetTree from "./AetTree.js"
+import PolySimple from "./PolySimple.js"
+import LmtTable from "./LmtTable.js"
+import ScanBeamTreeEntries from "./ScanBeamTreeEntries.js"
+import BundleState from "./BundleState.js"
+import TopPolygonNode from "./TopPolygonNode.js"
+import EdgeTable from "./EdgeTable.js"
+import ItNode from "./ItNode.js"
+import StNode from "./StNode.js"
+import ScanBeamTree from "./ScanBeamTree.js"
+import LmtNode from "./LmtNode.js"
+import VertexType from "./VertexType.js"
+import ItNodeTable from "./ItNodeTable.js"
+import HState from "./HState.js"
 
 export default class Clip {
   static DEBUG = false
   static GPC_EPSILON = 2.2204460492503131e-16
-  static GPC_VERSION = "2.31"
   static LEFT = 0
   static RIGHT = 1
   static ABOVE = 0
@@ -103,7 +115,7 @@ export default class Clip {
    * This is where the conversion from really begins.
    */
   static clip(op, subj, clip, polyClass) {
-    var result = Clip.createNewPoly(polyClass)
+    let result = Clip.createNewPoly(polyClass)
 
     /* Test for trivial NULL result cases */
     if (
@@ -195,7 +207,7 @@ export default class Clip {
         if (local_min.y === yb) {
           /* Add edges starting at this local minimum to the AET */
           for (
-            var edge = local_min.first_bound;
+            let edge = local_min.first_bound;
             edge != null;
             edge = edge.next_bound
           ) {
@@ -210,11 +222,11 @@ export default class Clip {
         aet.print()
       }
       /* Set dummy previous x value */
-      var px = -Number.MAX_VALUE
+      let px = -Number.MAX_VALUE
 
       /* Create bundles within AET */
-      var e0 = aet.top_node
-      var e1 = aet.top_node
+      let e0 = aet.top_node
+      let e1 = aet.top_node
 
       /* Set up bundle fields of first edge */
       aet.top_node.bundle[Clip.ABOVE][aet.top_node.type] =
@@ -223,12 +235,12 @@ export default class Clip {
       aet.top_node.bstate[Clip.ABOVE] = BundleState.UNBUNDLED
 
       for (
-        var next_edge = aet.top_node.next;
+        let next_edge = aet.top_node.next;
         next_edge != null;
         next_edge = next_edge.next
       ) {
-        var ne_type = next_edge.type
-        var ne_type_opp = next_edge.type === 0 ? 1 : 0 //next edge type opposite
+        const ne_type = next_edge.type
+        const ne_type_opp = next_edge.type === 0 ? 1 : 0 //next edge type opposite
 
         /* Set up bundle fields of next edge */
         next_edge.bundle[Clip.ABOVE][ne_type] = next_edge.top.y !== yb ? 1 : 0
@@ -255,18 +267,18 @@ export default class Clip {
         }
       }
 
-      var horiz = []
+      const horiz = []
       horiz[Clip.CLIP] = HState.NH
       horiz[Clip.SUBJ] = HState.NH
 
-      var exists = []
+      const exists = []
       exists[Clip.CLIP] = 0
       exists[Clip.SUBJ] = 0
 
-      var cf = null
+      let cf = null
 
       /* Process each edge at this scanbeam boundary */
-      for (var edge = aet.top_node; edge != null; edge = edge.next) {
+      for (let edge = aet.top_node; edge != null; edge = edge.next) {
         exists[Clip.CLIP] =
           edge.bundle[Clip.ABOVE][Clip.CLIP] +
           (edge.bundle[Clip.BELOW][Clip.CLIP] << 1)
@@ -279,11 +291,11 @@ export default class Clip {
           edge.bside[Clip.CLIP] = parity[Clip.CLIP]
           edge.bside[Clip.SUBJ] = parity[Clip.SUBJ]
 
-          var contributing = false
-          var br = 0
-          var bl = 0
-          var tr = 0
-          var tl = 0
+          let contributing = false
+          let br = 0
+          let bl = 0
+          let tr = 0
+          let tl = 0
           /* Determine contributing status and quadrant occupancies */
           if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
             contributing =
@@ -392,9 +404,9 @@ export default class Clip {
           }
 
           if (contributing) {
-            var xb = edge.xb
+            const xb = edge.xb
 
-            var vclass = VertexType.getType(tr, tl, br, bl)
+            const vclass = VertexType.getType(tr, tl, br, bl)
             switch (vclass) {
               case VertexType.EMN:
               case VertexType.IMN:
@@ -488,10 +500,9 @@ export default class Clip {
       } /* End of AET loop */
 
       /* Delete terminating edges from the AET, otherwise compute xt */
-      for (var edge = aet.top_node; edge != null; edge = edge.next) {
+      for (let edge = aet.top_node; edge != null; edge = edge.next) {
         if (edge.top.y === yb) {
-          var prev_edge = edge.prev
-          var next_edge = edge.next
+          const { prev: prev_edge, next: next_edge } = edge
 
           if (prev_edge != null) prev_edge.next = next_edge
           else aet.top_node = next_edge
@@ -525,13 +536,13 @@ export default class Clip {
         /* === SCANBEAM INTERIOR PROCESSING ============================== */
 
         /* Build intersection table for the current scanbeam */
-        var it_table = new ItNodeTable()
+        const it_table = new ItNodeTable()
         it_table.build_intersection_table(aet, dy)
 
         /* Process each node in the intersection table */
 
         for (
-          var intersect = it_table.top_node;
+          let intersect = it_table.top_node;
           intersect != null;
           intersect = intersect.next
         ) {
@@ -546,12 +557,12 @@ export default class Clip {
             (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 ||
               e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
           ) {
-            var p = e0.outp[Clip.ABOVE]
-            var q = e1.outp[Clip.ABOVE]
-            var ix = intersect.point.x
-            var iy = intersect.point.y + yb
+            const p = e0.outp[Clip.ABOVE]
+            const q = e1.outp[Clip.ABOVE]
+            const ix = intersect.point.x
+            const iy = intersect.point.y + yb
 
-            var in_clip =
+            const in_clip =
               (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
                 !(e0.bside[Clip.CLIP] !== 0)) ||
               (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
@@ -563,7 +574,7 @@ export default class Clip {
                 ? 1
                 : 0
 
-            var in_subj =
+            const in_subj =
               (e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
                 !(e0.bside[Clip.SUBJ] !== 0)) ||
               (e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
@@ -575,10 +586,10 @@ export default class Clip {
                 ? 1
                 : 0
 
-            var tr = 0
-            var tl = 0
-            var br = 0
-            var bl = 0
+            let tr = 0
+            let tl = 0
+            let br = 0
+            let bl = 0
             /* Determine quadrant occupancies */
             if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
               tr = in_clip !== 0 && in_subj !== 0 ? 1 : 0
@@ -647,7 +658,7 @@ export default class Clip {
               //console.log("ERROR : Unknown op type, "+op);
             }
 
-            var vclass = VertexType.getType(tr, tl, br, bl)
+            const vclass = VertexType.getType(tr, tl, br, bl)
             switch (vclass) {
               case VertexType.EMN:
                 e0.outp[Clip.ABOVE] = out_poly.add_local_min(ix, iy)
@@ -733,14 +744,14 @@ export default class Clip {
             e0.bside[Clip.SUBJ] = e0.bside[Clip.SUBJ] === 0 ? 1 : 0
 
           /* Swap e0 and e1 bundles in the AET */
-          var prev_edge = e0.prev
-          var next_edge = e1.next
+          let prev_edge = e0.prev
+          let next_edge = e1.next
           if (next_edge != null) {
             next_edge.prev = e0
           }
 
           if (e0.bstate[Clip.ABOVE] === BundleState.BUNDLE_HEAD) {
-            var search = true
+            let search = true
             while (search) {
               prev_edge = prev_edge.prev
               if (prev_edge != null) {
@@ -770,9 +781,9 @@ export default class Clip {
         } /* End of IT loop*/
 
         /* Prepare for next scanbeam */
-        for (var edge = aet.top_node; edge != null; edge = edge.next) {
-          var next_edge = edge.next
-          var succ_edge = edge.succ
+        for (let edge = aet.top_node; edge != null; edge = edge.next) {
+          let next_edge = edge.next
+          let succ_edge = edge.succ
           if (edge.top.y === yt && succ_edge != null) {
             /* Replace AET edge by its successor */
             succ_edge.outp[Clip.BELOW] = edge.outp[Clip.ABOVE]
@@ -781,7 +792,7 @@ export default class Clip {
               edge.bundle[Clip.ABOVE][Clip.CLIP]
             succ_edge.bundle[Clip.BELOW][Clip.SUBJ] =
               edge.bundle[Clip.ABOVE][Clip.SUBJ]
-            var prev_edge = edge.prev
+            let prev_edge = edge.prev
             if (prev_edge != null) prev_edge.next = succ_edge
             else aet.top_node = succ_edge
             if (next_edge != null) next_edge.prev = succ_edge
@@ -829,26 +840,26 @@ export default class Clip {
   }
 
   static create_contour_bboxes(p) {
-    var box = []
+    const box = []
 
     /* Construct contour bounding boxes */
-    for (var c = 0; c < p.getNumInnerPoly(); c++) {
-      var inner_poly = p.getInnerPoly(c)
+    for (let c = 0; c < p.getNumInnerPoly(); c++) {
+      const inner_poly = p.getInnerPoly(c)
       box[c] = inner_poly.getBounds()
     }
     return box
   }
   static minimax_test(subj, clip, op) {
-    var s_bbox = Clip.create_contour_bboxes(subj)
-    var c_bbox = Clip.create_contour_bboxes(clip)
+    const s_bbox = Clip.create_contour_bboxes(subj)
+    const c_bbox = Clip.create_contour_bboxes(clip)
 
-    var subj_num_poly = subj.getNumInnerPoly()
-    var clip_num_poly = clip.getNumInnerPoly()
-    var o_table = ArrayHelper.create2DArray(subj_num_poly, clip_num_poly)
+    const subj_num_poly = subj.getNumInnerPoly()
+    const clip_num_poly = clip.getNumInnerPoly()
+    const o_table = ArrayHelper.create2DArray(subj_num_poly, clip_num_poly)
 
     /* Check all subject contour bounding boxes against clip boxes */
-    for (var s = 0; s < subj_num_poly; s++) {
-      for (var c = 0; c < clip_num_poly; c++) {
+    for (let s = 0; s < subj_num_poly; s++) {
+      for (let c = 0; c < clip_num_poly; c++) {
         o_table[s][c] =
           !(
             s_bbox[s].getMaxX() < c_bbox[c].getMinX() ||
@@ -862,9 +873,9 @@ export default class Clip {
     }
 
     /* For each clip contour, search for any subject contour overlaps */
-    for (var c = 0; c < clip_num_poly; c++) {
-      var overlap = false
-      for (var s = 0; !overlap && s < subj_num_poly; s++) {
+    for (let c = 0; c < clip_num_poly; c++) {
+      let overlap = false
+      for (let s = 0; !overlap && s < subj_num_poly; s++) {
         overlap = o_table[s][c]
       }
       if (!overlap) {
@@ -874,9 +885,9 @@ export default class Clip {
 
     if (op === OperationType.GPC_INT) {
       /* For each subject contour, search for any clip contour overlaps */
-      for (var s = 0; s < subj_num_poly; s++) {
-        var overlap = false
-        for (var c = 0; !overlap && c < clip_num_poly; c++) {
+      for (let s = 0; s < subj_num_poly; s++) {
+        let overlap = false
+        for (let c = 0; !overlap && c < clip_num_poly; c++) {
           overlap = o_table[s][c]
         }
         if (!overlap) {
@@ -891,13 +902,13 @@ export default class Clip {
       lmt_table.top_node = new LmtNode(y)
       return lmt_table.top_node
     } else {
-      var prev = null
-      var node = lmt_table.top_node
-      var done = false
+      let prev = null
+      let node = lmt_table.top_node
+      let done = false
       while (!done) {
         if (y < node.y) {
           /* Insert a new LMT node before the current node */
-          var existing_node = node
+          const existing_node = node
           node = new LmtNode(y)
           node.next = existing_node
           if (prev == null) {
@@ -934,9 +945,9 @@ export default class Clip {
       /* Link node e to the tail of the list */
       lmt_node.first_bound = e
     } else {
-      var done = false
-      var prev_bound = null
-      var current_bound = lmt_node.first_bound
+      let done = false
+      let prev_bound = null
+      let current_bound = lmt_node.first_bound
       while (!done) {
         /* Do primary sort on the x field */
         if (e.bot.x < current_bound.bot.x) {
@@ -1005,9 +1016,9 @@ export default class Clip {
       edge.prev = null
       edge.next = null
     } else {
-      var current_edge = aet.top_node
-      var prev = null
-      var done = false
+      let current_edge = aet.top_node
+      let prev = null
+      let done = false
       while (!done) {
         /* Do primary sort on the xb field */
         if (edge.xb < current_edge.xb) {
@@ -1079,8 +1090,8 @@ export default class Clip {
       sbte.sbt_entries++
       return
     }
-    var tree_node = sbte.sb_tree
-    var done = false
+    let tree_node = sbte.sb_tree
+    let done = false
     while (!done) {
       if (tree_node.y > y) {
         if (tree_node.less == null) {
@@ -1112,22 +1123,22 @@ export default class Clip {
     op
   ) {
     /* Create the entire input polygon edge table in one go */
-    var edge_table = new EdgeTable()
+    let edge_table = new EdgeTable()
 
-    for (var c = 0; c < p.getNumInnerPoly(); c++) {
-      var ip = p.getInnerPoly(c)
+    for (let c = 0; c < p.getNumInnerPoly(); c++) {
+      const ip = p.getInnerPoly(c)
       if (!ip.isContributing(0)) {
         /* Ignore the non-contributing contour */
         ip.setContributing(0, true)
       } else {
         /* Perform contour optimisation */
-        var num_vertices = 0
-        var e_index = 0
+        let num_vertices = 0
+        let e_index = 0
         edge_table = new EdgeTable()
-        for (var i = 0; i < ip.getNumPoints(); i++) {
+        for (let i = 0; i < ip.getNumPoints(); i++) {
           if (Clip.OPTIMAL(ip, i)) {
-            var x = ip.getX(i)
-            var y = ip.getY(i)
+            const x = ip.getX(i)
+            const y = ip.getY(i)
             edge_table.addNode(x, y)
 
             /* Record vertex in the scanbeam table */
@@ -1139,27 +1150,27 @@ export default class Clip {
 
         /* Do the contour forward pass */
 
-        for (var min = 0; min < num_vertices; min++) {
+        for (let min = 0; min < num_vertices; min++) {
           /* If a forward local minimum... */
           if (edge_table.FWD_MIN(min)) {
             /* Search for the next local maximum... */
-            var num_edges = 1
-            var max = Clip.NEXT_INDEX(min, num_vertices)
+            let num_edges = 1
+            let max = Clip.NEXT_INDEX(min, num_vertices)
             while (edge_table.NOT_FMAX(max)) {
               num_edges++
               max = Clip.NEXT_INDEX(max, num_vertices)
             }
 
             /* Build the next edge list */
-            var v = min
-            var e = edge_table.getNode(e_index)
+            let v = min
+            let e = edge_table.getNode(e_index)
             e.bstate[Clip.BELOW] = BundleState.UNBUNDLED
             e.bundle[Clip.BELOW][Clip.CLIP] = 0
             e.bundle[Clip.BELOW][Clip.SUBJ] = 0
 
-            for (var i = 0; i < num_edges; i++) {
-              var ei = edge_table.getNode(e_index + i)
-              var ev = edge_table.getNode(v)
+            for (let i = 0; i < num_edges; i++) {
+              const ei = edge_table.getNode(e_index + i)
+              let ev = edge_table.getNode(v)
 
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
@@ -1202,27 +1213,27 @@ export default class Clip {
         }
 
         /* Do the contour reverse pass */
-        for (var min = 0; min < num_vertices; min++) {
+        for (let min = 0; min < num_vertices; min++) {
           /* If a reverse local minimum... */
           if (edge_table.REV_MIN(min)) {
             /* Search for the previous local maximum... */
-            var num_edges = 1
-            var max = Clip.PREV_INDEX(min, num_vertices)
+            let num_edges = 1
+            let max = Clip.PREV_INDEX(min, num_vertices)
             while (edge_table.NOT_RMAX(max)) {
               num_edges++
               max = Clip.PREV_INDEX(max, num_vertices)
             }
 
             /* Build the previous edge list */
-            var v = min
-            var e = edge_table.getNode(e_index)
+            let v = min
+            const e = edge_table.getNode(e_index)
             e.bstate[Clip.BELOW] = BundleState.UNBUNDLED
             e.bundle[Clip.BELOW][Clip.CLIP] = 0
             e.bundle[Clip.BELOW][Clip.SUBJ] = 0
 
-            for (var i = 0; i < num_edges; i++) {
-              var ei = edge_table.getNode(e_index + i)
-              var ev = edge_table.getNode(v)
+            for (let i = 0; i < num_edges; i++) {
+              let ei = edge_table.getNode(e_index + i)
+              let ev = edge_table.getNode(v)
 
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
@@ -1273,7 +1284,7 @@ export default class Clip {
       /* Append edge onto the tail end of the ST */
       st = new StNode(edge, null)
     } else {
-      var den = st.xt - st.xb - (edge.xt - edge.xb)
+      const den = st.xt - st.xb - (edge.xt - edge.xb)
 
       /* If new edge and ST edge don't cross */
       if (
@@ -1282,12 +1293,12 @@ export default class Clip {
         Math.abs(den) <= Clip.GPC_EPSILON
       ) {
         /* No intersection - insert edge here (before the ST edge) */
-        var existing_node = st
+        const existing_node = st
         st = new StNode(edge, existing_node)
       } else {
         /* Compute intersection between new edge and ST edge */
-        var r = (edge.xb - st.xb) / den
-        var x = st.xb + r * (st.xt - st.xb)
+        const r = (edge.xb - st.xb) / den
+        const x = st.xb + r * (st.xt - st.xb)
         const y = r * dy
 
         /* Insert the edge pointers and the intersection point in the IT */
