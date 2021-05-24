@@ -28,7 +28,7 @@ import VertexNode from "./geometry/VertexNode.js"
 import VertexType from "./geometry/VertexType.js"
 import WeilerAtherton from "./geometry/WeilerAtherton.js"
 
-const gpcas = {
+export const gpcas = {
   geometry: {
     Clip,
     AetTree,
@@ -58,5 +58,3 @@ const gpcas = {
     WeilerAtherton,
   },
 }
-
-export { gpcas }

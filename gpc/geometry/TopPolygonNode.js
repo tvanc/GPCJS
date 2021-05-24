@@ -153,15 +153,23 @@ export default class TopPolygonNode {
       poly_node != null;
       poly_node = npoly_node
     ) {
-      //console.log("contour="+c+"  active="+poly_node.active+"  hole="+poly_node.proxy.hole);
+      console.log(
+        "contour=" +
+          c +
+          "  active=" +
+          poly_node.active +
+          "  hole=" +
+          poly_node.proxy.hole
+      )
       npoly_node = poly_node.next
       if (!poly_node.active) {
+        let v = 0
         for (
           let vtx = poly_node.proxy.v[Clip.LEFT];
           vtx != null;
           vtx = vtx.next
         ) {
-          //console.log("v="+v+"  vtx.x="+vtx.x+"  vtx.y="+vtx.y);
+          console.log("v=" + v + "  vtx.x=" + vtx.x + "  vtx.y=" + vtx.y)
         }
         c++
       }
