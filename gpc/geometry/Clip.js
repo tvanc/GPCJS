@@ -19,6 +19,7 @@ import HState from "./HState.js"
 export default class Clip {
   static DEBUG = false
   static GPC_EPSILON = 2.2204460492503131e-16
+  static GPC_VERSION = "2.31"
   static LEFT = 0
   static RIGHT = 1
   static ABOVE = 0
@@ -26,7 +27,6 @@ export default class Clip {
   static CLIP = 0
   static SUBJ = 1
 
-  // region Public Static
   /**
    * Return the intersection of <code>p1</code> and <code>p2</code> where the
    * return type is of <code>polyClass</code>.  See the note in the class description
@@ -78,10 +78,6 @@ export default class Clip {
   static difference(p1, p2, polyClass = "PolyDefault") {
     return Clip.clip(OperationType.GPC_DIFF, p2, p1, polyClass)
   }
-
-  // intersection(p1, p2) {
-  //   return Clip.clip(OperationType.GPC_INT, p1, p2, "PolyDefault.class")
-  // }
   // endregion Public Static
 
   // region Private Static
@@ -309,25 +305,24 @@ export default class Clip {
                 ? 1
                 : 0
             tr =
-              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] !== HState.NH ? 1 : 0)) !==
+              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] != HState.NH ? 1 : 0)) !=
                 0 &&
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0)) !==
-                0
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0)) != 0
                 ? 1
                 : 0
             tl =
               (parity[Clip.CLIP] ^
-                (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.CLIP]) !==
+                (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.CLIP]) !=
                 0 &&
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.SUBJ]) !==
+                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.SUBJ]) !=
                 0
                 ? 1
                 : 0
-          } else if (op === OperationType.GPC_XOR) {
-            contributing = exists[Clip.CLIP] !== 0 || exists[Clip.SUBJ] !== 0
+          } else if (op == OperationType.GPC_XOR) {
+            contributing = exists[Clip.CLIP] != 0 || exists[Clip.SUBJ] != 0
             br = parity[Clip.CLIP] ^ parity[Clip.SUBJ]
             bl =
               parity[Clip.CLIP] ^
@@ -335,45 +330,44 @@ export default class Clip {
               (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ])
             tr =
               parity[Clip.CLIP] ^
-              (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0))
+              (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0))
             tl =
               parity[Clip.CLIP] ^
-              (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
+              (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
               edge.bundle[Clip.BELOW][Clip.CLIP] ^
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
+                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
                 edge.bundle[Clip.BELOW][Clip.SUBJ])
-          } else if (op === OperationType.GPC_UNION) {
+          } else if (op == OperationType.GPC_UNION) {
             contributing =
-              (exists[Clip.CLIP] !== 0 &&
-                (!(parity[Clip.SUBJ] !== 0) || horiz[Clip.SUBJ] !== 0)) ||
-              (exists[Clip.SUBJ] !== 0 &&
-                (!(parity[Clip.CLIP] !== 0) || horiz[Clip.CLIP] !== 0)) ||
-              (exists[Clip.CLIP] !== 0 &&
-                exists[Clip.SUBJ] !== 0 &&
-                parity[Clip.CLIP] === parity[Clip.SUBJ])
-            br = parity[Clip.CLIP] !== 0 || parity[Clip.SUBJ] !== 0 ? 1 : 0
+              (exists[Clip.CLIP] != 0 &&
+                (!(parity[Clip.SUBJ] != 0) || horiz[Clip.SUBJ] != 0)) ||
+              (exists[Clip.SUBJ] != 0 &&
+                (!(parity[Clip.CLIP] != 0) || horiz[Clip.CLIP] != 0)) ||
+              (exists[Clip.CLIP] != 0 &&
+                exists[Clip.SUBJ] != 0 &&
+                parity[Clip.CLIP] == parity[Clip.SUBJ])
+            br = parity[Clip.CLIP] != 0 || parity[Clip.SUBJ] != 0 ? 1 : 0
             bl =
-              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
-              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
+              (parity[Clip.CLIP] ^ edge.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
+              (parity[Clip.SUBJ] ^ edge.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
                 ? 1
                 : 0
             tr =
-              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] !== HState.NH ? 1 : 0)) !==
+              (parity[Clip.CLIP] ^ (horiz[Clip.CLIP] != HState.NH ? 1 : 0)) !=
                 0 ||
-              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0)) !==
-                0
+              (parity[Clip.SUBJ] ^ (horiz[Clip.SUBJ] != HState.NH ? 1 : 0)) != 0
                 ? 1
                 : 0
             tl =
               (parity[Clip.CLIP] ^
-                (horiz[Clip.CLIP] !== HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.CLIP]) !==
+                (horiz[Clip.CLIP] != HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.CLIP]) !=
                 0 ||
               (parity[Clip.SUBJ] ^
-                (horiz[Clip.SUBJ] !== HState.NH ? 1 : 0) ^
-                edge.bundle[Clip.BELOW][Clip.SUBJ]) !==
+                (horiz[Clip.SUBJ] != HState.NH ? 1 : 0) ^
+                edge.bundle[Clip.BELOW][Clip.SUBJ]) !=
                 0
                 ? 1
                 : 0
@@ -386,13 +380,13 @@ export default class Clip {
           parity[Clip.SUBJ] ^= edge.bundle[Clip.ABOVE][Clip.SUBJ]
 
           /* Update horizontal state */
-          if (exists[Clip.CLIP] !== 0) {
+          if (exists[Clip.CLIP] != 0) {
             horiz[Clip.CLIP] =
               HState.next_h_state[horiz[Clip.CLIP]][
                 ((exists[Clip.CLIP] - 1) << 1) + parity[Clip.CLIP]
               ]
           }
-          if (exists[Clip.SUBJ] !== 0) {
+          if (exists[Clip.SUBJ] != 0) {
             horiz[Clip.SUBJ] =
               HState.next_h_state[horiz[Clip.SUBJ]][
                 ((exists[Clip.SUBJ] - 1) << 1) + parity[Clip.SUBJ]
@@ -400,9 +394,9 @@ export default class Clip {
           }
 
           if (contributing) {
-            const xb = edge.xb
+            var xb = edge.xb
 
-            const vclass = VertexType.getType(tr, tl, br, bl)
+            var vclass = VertexType.getType(tr, tl, br, bl)
             switch (vclass) {
               case VertexType.EMN:
               case VertexType.IMN:
@@ -411,7 +405,7 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.ERI:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -424,7 +418,7 @@ export default class Clip {
                 cf = edge.outp[Clip.BELOW]
                 break
               case VertexType.EMX:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -432,7 +426,7 @@ export default class Clip {
                 cf = null
                 break
               case VertexType.ILI:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -446,7 +440,7 @@ export default class Clip {
                 edge.outp[Clip.BELOW] = null
                 break
               case VertexType.IMX:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -455,7 +449,7 @@ export default class Clip {
                 edge.outp[Clip.BELOW] = null
                 break
               case VertexType.IMM:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_right(xb, yb)
                   px = xb
                 }
@@ -465,7 +459,7 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.EMM:
-                if (xb !== px) {
+                if (xb != px) {
                   cf.add_left(xb, yb)
                   px = xb
                 }
@@ -475,12 +469,12 @@ export default class Clip {
                 cf = edge.outp[Clip.ABOVE]
                 break
               case VertexType.LED:
-                if (edge.bot.y === yb) edge.outp[Clip.BELOW].add_left(xb, yb)
+                if (edge.bot.y == yb) edge.outp[Clip.BELOW].add_left(xb, yb)
                 edge.outp[Clip.ABOVE] = edge.outp[Clip.BELOW]
                 px = xb
                 break
               case VertexType.RED:
-                if (edge.bot.y === yb) edge.outp[Clip.BELOW].add_right(xb, yb)
+                if (edge.bot.y == yb) edge.outp[Clip.BELOW].add_right(xb, yb)
                 edge.outp[Clip.ABOVE] = edge.outp[Clip.BELOW]
                 px = xb
                 break
@@ -496,26 +490,27 @@ export default class Clip {
       } /* End of AET loop */
 
       /* Delete terminating edges from the AET, otherwise compute xt */
-      for (let edge = aet.top_node; edge; edge = edge.next) {
-        if (edge.top.y === yb) {
-          const { prev: prev_edge, next: next_edge } = edge
+      for (var edge = aet.top_node; edge != null; edge = edge.next) {
+        if (edge.top.y == yb) {
+          var prev_edge = edge.prev
+          var next_edge = edge.next
 
-          if (prev_edge) prev_edge.next = next_edge
+          if (prev_edge != null) prev_edge.next = next_edge
           else aet.top_node = next_edge
 
-          if (next_edge) next_edge.prev = prev_edge
+          if (next_edge != null) next_edge.prev = prev_edge
 
           /* Copy bundle head state to the adjacent tail edge if required */
           if (
-            edge.bstate[Clip.BELOW] === BundleState.BUNDLE_HEAD &&
-            prev_edge
+            edge.bstate[Clip.BELOW] == BundleState.BUNDLE_HEAD &&
+            prev_edge != null
           ) {
-            if (prev_edge.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL) {
+            if (prev_edge.bstate[Clip.BELOW] == BundleState.BUNDLE_TAIL) {
               prev_edge.outp[Clip.BELOW] = edge.outp[Clip.BELOW]
               prev_edge.bstate[Clip.BELOW] = BundleState.UNBUNDLED
-              if (prev_edge.prev) {
+              if (prev_edge.prev != null) {
                 if (
-                  prev_edge.prev.bstate[Clip.BELOW] === BundleState.BUNDLE_TAIL
+                  prev_edge.prev.bstate[Clip.BELOW] == BundleState.BUNDLE_TAIL
                 ) {
                   prev_edge.bstate[Clip.BELOW] = BundleState.BUNDLE_HEAD
                 }
@@ -523,7 +518,7 @@ export default class Clip {
             }
           }
         } else {
-          if (edge.top.y === yt) edge.xt = edge.top.x
+          if (edge.top.y == yt) edge.xt = edge.top.x
           else edge.xt = edge.bot.x + edge.dx * (yt - edge.bot.y)
         }
       }
@@ -532,13 +527,13 @@ export default class Clip {
         /* === SCANBEAM INTERIOR PROCESSING ============================== */
 
         /* Build intersection table for the current scanbeam */
-        const it_table = new ItNodeTable()
+        var it_table = new ItNodeTable()
         it_table.build_intersection_table(aet, dy)
 
         /* Process each node in the intersection table */
 
         for (
-          let intersect = it_table.top_node;
+          var intersect = it_table.top_node;
           intersect != null;
           intersect = intersect.next
         ) {
@@ -548,69 +543,69 @@ export default class Clip {
           /* Only generate output for contributing intersections */
 
           if (
-            (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0 ||
-              e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
-            (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 ||
-              e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
+            (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0 ||
+              e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
+            (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0 ||
+              e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
           ) {
-            const p = e0.outp[Clip.ABOVE]
-            const q = e1.outp[Clip.ABOVE]
-            const ix = intersect.point.x
-            const iy = intersect.point.y + yb
+            var p = e0.outp[Clip.ABOVE]
+            var q = e1.outp[Clip.ABOVE]
+            var ix = intersect.point.x
+            var iy = intersect.point.y + yb
 
-            const in_clip =
-              (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
-                !(e0.bside[Clip.CLIP] !== 0)) ||
-              (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0 &&
-                e1.bside[Clip.CLIP] !== 0) ||
-              (!(e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0) &&
-                !(e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0) &&
-                e0.bside[Clip.CLIP] !== 0 &&
-                e1.bside[Clip.CLIP] !== 0)
+            var in_clip =
+              (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0 &&
+                !(e0.bside[Clip.CLIP] != 0)) ||
+              (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0 &&
+                e1.bside[Clip.CLIP] != 0) ||
+              (!(e0.bundle[Clip.ABOVE][Clip.CLIP] != 0) &&
+                !(e1.bundle[Clip.ABOVE][Clip.CLIP] != 0) &&
+                e0.bside[Clip.CLIP] != 0 &&
+                e1.bside[Clip.CLIP] != 0)
                 ? 1
                 : 0
 
-            const in_subj =
-              (e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
-                !(e0.bside[Clip.SUBJ] !== 0)) ||
-              (e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0 &&
-                e1.bside[Clip.SUBJ] !== 0) ||
-              (!(e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
-                !(e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0) &&
-                e0.bside[Clip.SUBJ] !== 0 &&
-                e1.bside[Clip.SUBJ] !== 0)
+            var in_subj =
+              (e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0 &&
+                !(e0.bside[Clip.SUBJ] != 0)) ||
+              (e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0 &&
+                e1.bside[Clip.SUBJ] != 0) ||
+              (!(e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
+                !(e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0) &&
+                e0.bside[Clip.SUBJ] != 0 &&
+                e1.bside[Clip.SUBJ] != 0)
                 ? 1
                 : 0
 
-            let tr = 0
-            let tl = 0
-            let br = 0
-            let bl = 0
+            var tr = 0
+            var tl = 0
+            var br = 0
+            var bl = 0
             /* Determine quadrant occupancies */
-            if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
-              tr = in_clip !== 0 && in_subj !== 0 ? 1 : 0
+            if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
+              tr = in_clip != 0 && in_subj != 0 ? 1 : 0
               tl =
-                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 &&
-                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
+                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) != 0 &&
+                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
                   ? 1
                   : 0
               br =
-                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 &&
-                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
+                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) != 0 &&
+                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
                   ? 1
                   : 0
               bl =
                 (in_clip ^
                   e1.bundle[Clip.ABOVE][Clip.CLIP] ^
-                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !==
+                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !=
                   0 &&
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
-                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !==
+                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !=
                   0
                   ? 1
                   : 0
-            } else if (op === OperationType.GPC_XOR) {
+            } else if (op == OperationType.GPC_XOR) {
               tr = in_clip ^ in_subj
               tl =
                 in_clip ^
@@ -627,26 +622,26 @@ export default class Clip {
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
                   e0.bundle[Clip.ABOVE][Clip.SUBJ])
-            } else if (op === OperationType.GPC_UNION) {
-              tr = in_clip !== 0 || in_subj !== 0 ? 1 : 0
+            } else if (op == OperationType.GPC_UNION) {
+              tr = in_clip != 0 || in_subj != 0 ? 1 : 0
               tl =
-                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
-                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
+                (in_clip ^ e1.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
+                (in_subj ^ e1.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
                   ? 1
                   : 0
               br =
-                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) !== 0 ||
-                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) !== 0
+                (in_clip ^ e0.bundle[Clip.ABOVE][Clip.CLIP]) != 0 ||
+                (in_subj ^ e0.bundle[Clip.ABOVE][Clip.SUBJ]) != 0
                   ? 1
                   : 0
               bl =
                 (in_clip ^
                   e1.bundle[Clip.ABOVE][Clip.CLIP] ^
-                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !==
+                  e0.bundle[Clip.ABOVE][Clip.CLIP]) !=
                   0 ||
                 (in_subj ^
                   e1.bundle[Clip.ABOVE][Clip.SUBJ] ^
-                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !==
+                  e0.bundle[Clip.ABOVE][Clip.SUBJ]) !=
                   0
                   ? 1
                   : 0
@@ -654,7 +649,7 @@ export default class Clip {
               //console.log("ERROR : Unknown op type, "+op);
             }
 
-            const vclass = VertexType.getType(tr, tl, br, bl)
+            var vclass = VertexType.getType(tr, tl, br, bl)
             switch (vclass) {
               case VertexType.EMN:
                 e0.outp[Clip.ABOVE] = out_poly.add_local_min(ix, iy)
@@ -730,28 +725,28 @@ export default class Clip {
           } /* End of contributing intersection conditional */
 
           /* Swap bundle sides in response to edge crossing */
-          if (e0.bundle[Clip.ABOVE][Clip.CLIP] !== 0)
-            e1.bside[Clip.CLIP] = e1.bside[Clip.CLIP] === 0 ? 1 : 0
-          if (e1.bundle[Clip.ABOVE][Clip.CLIP] !== 0)
-            e0.bside[Clip.CLIP] = e0.bside[Clip.CLIP] === 0 ? 1 : 0
-          if (e0.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
-            e1.bside[Clip.SUBJ] = e1.bside[Clip.SUBJ] === 0 ? 1 : 0
-          if (e1.bundle[Clip.ABOVE][Clip.SUBJ] !== 0)
-            e0.bside[Clip.SUBJ] = e0.bside[Clip.SUBJ] === 0 ? 1 : 0
+          if (e0.bundle[Clip.ABOVE][Clip.CLIP] != 0)
+            e1.bside[Clip.CLIP] = e1.bside[Clip.CLIP] == 0 ? 1 : 0
+          if (e1.bundle[Clip.ABOVE][Clip.CLIP] != 0)
+            e0.bside[Clip.CLIP] = e0.bside[Clip.CLIP] == 0 ? 1 : 0
+          if (e0.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
+            e1.bside[Clip.SUBJ] = e1.bside[Clip.SUBJ] == 0 ? 1 : 0
+          if (e1.bundle[Clip.ABOVE][Clip.SUBJ] != 0)
+            e0.bside[Clip.SUBJ] = e0.bside[Clip.SUBJ] == 0 ? 1 : 0
 
           /* Swap e0 and e1 bundles in the AET */
-          let prev_edge = e0.prev
-          let next_edge = e1.next
+          var prev_edge = e0.prev
+          var next_edge = e1.next
           if (next_edge != null) {
             next_edge.prev = e0
           }
 
-          if (e0.bstate[Clip.ABOVE] === BundleState.BUNDLE_HEAD) {
-            let search = true
+          if (e0.bstate[Clip.ABOVE] == BundleState.BUNDLE_HEAD) {
+            var search = true
             while (search) {
               prev_edge = prev_edge.prev
               if (prev_edge != null) {
-                if (prev_edge.bstate[Clip.ABOVE] !== BundleState.BUNDLE_TAIL) {
+                if (prev_edge.bstate[Clip.ABOVE] != BundleState.BUNDLE_TAIL) {
                   search = false
                 }
               } else {
@@ -777,10 +772,10 @@ export default class Clip {
         } /* End of IT loop*/
 
         /* Prepare for next scanbeam */
-        for (let edge = aet.top_node; edge != null; edge = edge.next) {
-          let next_edge = edge.next
-          let succ_edge = edge.succ
-          if (edge.top.y === yt && succ_edge != null) {
+        for (var edge = aet.top_node; edge != null; edge = edge.next) {
+          var next_edge = edge.next
+          var succ_edge = edge.succ
+          if (edge.top.y == yt && succ_edge != null) {
             /* Replace AET edge by its successor */
             succ_edge.outp[Clip.BELOW] = edge.outp[Clip.ABOVE]
             succ_edge.bstate[Clip.BELOW] = edge.bstate[Clip.ABOVE]
@@ -788,7 +783,7 @@ export default class Clip {
               edge.bundle[Clip.ABOVE][Clip.CLIP]
             succ_edge.bundle[Clip.BELOW][Clip.SUBJ] =
               edge.bundle[Clip.ABOVE][Clip.SUBJ]
-            let prev_edge = edge.prev
+            var prev_edge = edge.prev
             if (prev_edge != null) prev_edge.next = succ_edge
             else aet.top_node = succ_edge
             if (next_edge != null) next_edge.prev = succ_edge
@@ -830,32 +825,33 @@ export default class Clip {
 
   static OPTIMAL(p, i) {
     return (
-      p.getY(Clip.PREV_INDEX(i, p.getNumPoints())) !== p.getY(i) ||
-      p.getY(Clip.NEXT_INDEX(i, p.getNumPoints())) !== p.getY(i)
+      p.getY(Clip.PREV_INDEX(i, p.getNumPoints())) != p.getY(i) ||
+      p.getY(Clip.NEXT_INDEX(i, p.getNumPoints())) != p.getY(i)
     )
   }
 
   static create_contour_bboxes(p) {
-    const box = []
+    var box = []
 
     /* Construct contour bounding boxes */
-    for (let c = 0; c < p.getNumInnerPoly(); c++) {
-      const inner_poly = p.getInnerPoly(c)
+    for (var c = 0; c < p.getNumInnerPoly(); c++) {
+      var inner_poly = p.getInnerPoly(c)
       box[c] = inner_poly.getBounds()
     }
     return box
   }
-  static minimax_test(subj, clip, op) {
-    const s_bbox = Clip.create_contour_bboxes(subj)
-    const c_bbox = Clip.create_contour_bboxes(clip)
 
-    const subj_num_poly = subj.getNumInnerPoly()
-    const clip_num_poly = clip.getNumInnerPoly()
-    const o_table = ArrayHelper.create2DArray(subj_num_poly, clip_num_poly)
+  static minimax_test(subj, clip, op) {
+    var s_bbox = Clip.create_contour_bboxes(subj)
+    var c_bbox = Clip.create_contour_bboxes(clip)
+
+    var subj_num_poly = subj.getNumInnerPoly()
+    var clip_num_poly = clip.getNumInnerPoly()
+    var o_table = ArrayHelper.create2DArray(subj_num_poly, clip_num_poly)
 
     /* Check all subject contour bounding boxes against clip boxes */
-    for (let s = 0; s < subj_num_poly; s++) {
-      for (let c = 0; c < clip_num_poly; c++) {
+    for (var s = 0; s < subj_num_poly; s++) {
+      for (var c = 0; c < clip_num_poly; c++) {
         o_table[s][c] =
           !(
             s_bbox[s].getMaxX() < c_bbox[c].getMinX() ||
@@ -869,9 +865,9 @@ export default class Clip {
     }
 
     /* For each clip contour, search for any subject contour overlaps */
-    for (let c = 0; c < clip_num_poly; c++) {
-      let overlap = false
-      for (let s = 0; !overlap && s < subj_num_poly; s++) {
+    for (var c = 0; c < clip_num_poly; c++) {
+      var overlap = false
+      for (var s = 0; !overlap && s < subj_num_poly; s++) {
         overlap = o_table[s][c]
       }
       if (!overlap) {
@@ -879,11 +875,11 @@ export default class Clip {
       }
     }
 
-    if (op === OperationType.GPC_INT) {
+    if (op == OperationType.GPC_INT) {
       /* For each subject contour, search for any clip contour overlaps */
-      for (let s = 0; s < subj_num_poly; s++) {
-        let overlap = false
-        for (let c = 0; !overlap && c < clip_num_poly; c++) {
+      for (var s = 0; s < subj_num_poly; s++) {
+        var overlap = false
+        for (var c = 0; !overlap && c < clip_num_poly; c++) {
           overlap = o_table[s][c]
         }
         if (!overlap) {
@@ -898,13 +894,13 @@ export default class Clip {
       lmt_table.top_node = new LmtNode(y)
       return lmt_table.top_node
     } else {
-      let prev = null
-      let node = lmt_table.top_node
-      let done = false
+      var prev = null
+      var node = lmt_table.top_node
+      var done = false
       while (!done) {
         if (y < node.y) {
           /* Insert a new LMT node before the current node */
-          const existing_node = node
+          var existing_node = node
           node = new LmtNode(y)
           node.next = existing_node
           if (prev == null) {
@@ -941,9 +937,9 @@ export default class Clip {
       /* Link node e to the tail of the list */
       lmt_node.first_bound = e
     } else {
-      let done = false
-      let prev_bound = null
-      let current_bound = lmt_node.first_bound
+      var done = false
+      var prev_bound = null
+      var current_bound = lmt_node.first_bound
       while (!done) {
         /* Do primary sort on the x field */
         if (e.bot.x < current_bound.bot.x) {
@@ -963,7 +959,7 @@ export default class Clip {
           //                  lmt_node.first_bound = current_bound ;
           //               }
           done = true
-        } else if (e.bot.x === current_bound.bot.x) {
+        } else if (e.bot.x == current_bound.bot.x) {
           /* Do secondary sort on the dx field */
           if (e.dx < current_bound.dx) {
             /* Insert a new node mid-list */
@@ -1012,9 +1008,9 @@ export default class Clip {
       edge.prev = null
       edge.next = null
     } else {
-      let current_edge = aet.top_node
-      let prev = null
-      let done = false
+      var current_edge = aet.top_node
+      var prev = null
+      var done = false
       while (!done) {
         /* Do primary sort on the xb field */
         if (edge.xb < current_edge.xb) {
@@ -1033,7 +1029,7 @@ export default class Clip {
           //               }
           //               current_edge = edge ;
           done = true
-        } else if (edge.xb === current_edge.xb) {
+        } else if (edge.xb == current_edge.xb) {
           /* Do secondary sort on the dx field */
           if (edge.dx < current_edge.dx) {
             /* Insert edge here (before the AET edge) */
@@ -1086,8 +1082,8 @@ export default class Clip {
       sbte.sbt_entries++
       return
     }
-    let tree_node = sbte.sb_tree
-    let done = false
+    var tree_node = sbte.sb_tree
+    var done = false
     while (!done) {
       if (tree_node.y > y) {
         if (tree_node.less == null) {
@@ -1119,22 +1115,22 @@ export default class Clip {
     op
   ) {
     /* Create the entire input polygon edge table in one go */
-    let edge_table = new EdgeTable()
+    var edge_table = new EdgeTable()
 
-    for (let c = 0; c < p.getNumInnerPoly(); c++) {
-      const ip = p.getInnerPoly(c)
+    for (var c = 0; c < p.getNumInnerPoly(); c++) {
+      var ip = p.getInnerPoly(c)
       if (!ip.isContributing(0)) {
         /* Ignore the non-contributing contour */
         ip.setContributing(0, true)
       } else {
         /* Perform contour optimisation */
-        let num_vertices = 0
-        let e_index = 0
+        var num_vertices = 0
+        var e_index = 0
         edge_table = new EdgeTable()
-        for (let i = 0; i < ip.getNumPoints(); i++) {
+        for (var i = 0; i < ip.getNumPoints(); i++) {
           if (Clip.OPTIMAL(ip, i)) {
-            const x = ip.getX(i)
-            const y = ip.getY(i)
+            var x = ip.getX(i)
+            var y = ip.getY(i)
             edge_table.addNode(x, y)
 
             /* Record vertex in the scanbeam table */
@@ -1146,27 +1142,27 @@ export default class Clip {
 
         /* Do the contour forward pass */
 
-        for (let min = 0; min < num_vertices; min++) {
+        for (var min = 0; min < num_vertices; min++) {
           /* If a forward local minimum... */
           if (edge_table.FWD_MIN(min)) {
             /* Search for the next local maximum... */
-            let num_edges = 1
-            let max = Clip.NEXT_INDEX(min, num_vertices)
+            var num_edges = 1
+            var max = Clip.NEXT_INDEX(min, num_vertices)
             while (edge_table.NOT_FMAX(max)) {
               num_edges++
               max = Clip.NEXT_INDEX(max, num_vertices)
             }
 
             /* Build the next edge list */
-            let v = min
-            let e = edge_table.getNode(e_index)
+            var v = min
+            var e = edge_table.getNode(e_index)
             e.bstate[Clip.BELOW] = BundleState.UNBUNDLED
             e.bundle[Clip.BELOW][Clip.CLIP] = 0
             e.bundle[Clip.BELOW][Clip.SUBJ] = 0
 
-            for (let i = 0; i < num_edges; i++) {
-              const ei = edge_table.getNode(e_index + i)
-              let ev = edge_table.getNode(v)
+            for (var i = 0; i < num_edges; i++) {
+              var ei = edge_table.getNode(e_index + i)
+              var ev = edge_table.getNode(v)
 
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
@@ -1193,7 +1189,7 @@ export default class Clip {
                   : null
               ei.next_bound = null
               ei.bside[Clip.CLIP] =
-                op === OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
+                op == OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
               ei.bside[Clip.SUBJ] = Clip.LEFT
             }
             Clip.insert_bound(
@@ -1209,27 +1205,27 @@ export default class Clip {
         }
 
         /* Do the contour reverse pass */
-        for (let min = 0; min < num_vertices; min++) {
+        for (var min = 0; min < num_vertices; min++) {
           /* If a reverse local minimum... */
           if (edge_table.REV_MIN(min)) {
             /* Search for the previous local maximum... */
-            let num_edges = 1
-            let max = Clip.PREV_INDEX(min, num_vertices)
+            var num_edges = 1
+            var max = Clip.PREV_INDEX(min, num_vertices)
             while (edge_table.NOT_RMAX(max)) {
               num_edges++
               max = Clip.PREV_INDEX(max, num_vertices)
             }
 
             /* Build the previous edge list */
-            let v = min
-            const e = edge_table.getNode(e_index)
+            var v = min
+            var e = edge_table.getNode(e_index)
             e.bstate[Clip.BELOW] = BundleState.UNBUNDLED
             e.bundle[Clip.BELOW][Clip.CLIP] = 0
             e.bundle[Clip.BELOW][Clip.SUBJ] = 0
 
-            for (let i = 0; i < num_edges; i++) {
-              let ei = edge_table.getNode(e_index + i)
-              let ev = edge_table.getNode(v)
+            for (var i = 0; i < num_edges; i++) {
+              var ei = edge_table.getNode(e_index + i)
+              var ev = edge_table.getNode(v)
 
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
@@ -1256,7 +1252,7 @@ export default class Clip {
                   : null
               ei.next_bound = null
               ei.bside[Clip.CLIP] =
-                op === OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
+                op == OperationType.GPC_DIFF ? Clip.RIGHT : Clip.LEFT
               ei.bside[Clip.SUBJ] = Clip.LEFT
             }
             Clip.insert_bound(
@@ -1280,22 +1276,22 @@ export default class Clip {
       /* Append edge onto the tail end of the ST */
       st = new StNode(edge, null)
     } else {
-      const den = st.xt - st.xb - (edge.xt - edge.xb)
+      var den = st.xt - st.xb - (edge.xt - edge.xb)
 
       /* If new edge and ST edge don't cross */
       if (
         edge.xt >= st.xt ||
-        edge.dx === st.dx ||
+        edge.dx == st.dx ||
         Math.abs(den) <= Clip.GPC_EPSILON
       ) {
         /* No intersection - insert edge here (before the ST edge) */
-        const existing_node = st
+        var existing_node = st
         st = new StNode(edge, existing_node)
       } else {
         /* Compute intersection between new edge and ST edge */
-        const r = (edge.xb - st.xb) / den
-        const x = st.xb + r * (st.xt - st.xb)
-        const y = r * dy
+        var r = (edge.xb - st.xb) / den
+        var x = st.xb + r * (st.xt - st.xb)
+        var y = r * dy
 
         /* Insert the edge pointers and the intersection point in the IT */
         it.top_node = Clip.add_intersection(it.top_node, st.edge, edge, x, y)
@@ -1314,7 +1310,7 @@ export default class Clip {
     } else {
       if (it_node.point.y > y) {
         /* Insert a new node mid-list */
-        const existing_node = it_node
+        var existing_node = it_node
         it_node = new ItNode(edge0, edge1, x, y, existing_node)
       } else {
         /* Head further down the list */

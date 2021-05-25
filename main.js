@@ -2,29 +2,6 @@ import { gpcas } from "./gpc/gpc.js"
 import Point from "./gpc/geometry/Point.js"
 
 //define classes for GPC
-const {
-  PolyDefault,
-  PolySimple,
-  Clip,
-  OperationType,
-  LmtTable,
-  ScanBeamTreeEntries,
-  EdgeTable,
-  EdgeNode,
-  ScanBeamTree,
-  Rectangle,
-  BundleState,
-  LmtNode,
-  TopPolygonNode,
-  AetTree,
-  HState,
-  VertexType,
-  VertexNode,
-  PolygonNode,
-  ItNodeTable,
-  StNode,
-  ItNode,
-} = gpcas.geometry
 
 const canvas = document.getElementById("canvas")
 const context = canvas.getContext("2d")
@@ -61,6 +38,8 @@ document.getElementById("difBtn").addEventListener("click", difference)
 document.getElementById("intBtn").addEventListener("click", intersection)
 document.getElementById("unBtn").addEventListener("click", union)
 document.getElementById("xorBtn").addEventListener("click", xor)
+
+document.addEventListener("DOMContentLoaded", union)
 
 function difference() {
   clearScreen()
@@ -102,7 +81,7 @@ function xor() {
 }
 
 function createPoly(points) {
-  const res = new PolyDefault()
+  const res = new gpcas.geometry.PolyDefault()
   for (let i = 0; i < points.length; i++) {
     res.addPoint(new Point(points[i][0], points[i][1]))
   }
