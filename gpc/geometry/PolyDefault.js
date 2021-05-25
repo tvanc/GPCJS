@@ -22,12 +22,13 @@ import Rectangle from "./Rectangle.js"
  * @author  Dan Bridenbecker, Solution Engineering, Inc.
  */
 export default class PolyDefault {
+  m_List = new ArrayList()
+
   constructor(isHole = false) {
     /**
      * Only applies to the first poly and can only be used with a poly that contains one poly
      */
     this.m_IsHole = isHole
-    this.m_List = new ArrayList()
   }
 
   /**
