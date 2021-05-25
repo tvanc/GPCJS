@@ -37,7 +37,7 @@ export const gpcas = {
     ArrayList,
   },
   geometry: {
-    // Clip,
+    Clip,
     AetTree,
     BundleState,
     EdgeNode,
@@ -52,7 +52,7 @@ export const gpcas = {
     LmtNode,
     LmtTable,
     OperationType,
-    // PolyDefault,
+    PolyDefault,
     Polygon,
     PolygonNode,
     PolySimple,
@@ -783,99 +783,6 @@ Clip.clip = function (op, subj, clip, polyClass) {
 gpcas.geometry.Clip = Clip
 // endregion Clip
 
-// region PolyDefault
-/**
- * <code>PolyDefault</code> is a default <code>Poly</code> implementation.
- * It provides support for both complex and simple polygons.  A <i>complex polygon</i>
- * is a polygon that consists of more than one polygon.  A <i>simple polygon</i> is a
- * more traditional polygon that contains of one inner polygon and is just a
- * collection of points.
- * <p>
- * <b>Implementation Note:</b> If a point is added to an empty <code>PolyDefault</code>
- * object, it will create an inner polygon of type <code>PolySimple</code>.
- *
- * @see PolySimple
- *
- * @author  Dan Bridenbecker, Solution Engineering, Inc.
- */
-gpcas.geometry.PolyDefault = PolyDefault
-
-/**
- * Return a Poly that is the intersection of this polygon with the given polygon.
- * The returned polygon could be complex.
- *
- * @return the returned Poly will be an instance of PolyDefault.
- */
-gpcas.geometry.PolyDefault.prototype.intersection = function (p) {
-  return Clip.intersection(p, this, "PolyDefault")
-}
-
-/**
- * Return a Poly that is the union of this polygon with the given polygon.
- * The returned polygon could be complex.
- *
- * @return the returned Poly will be an instance of PolyDefault.
- */
-gpcas.geometry.PolyDefault.prototype.union = function (p) {
-  return Clip.union(p, this, "PolyDefault")
-}
-
-/**
- * Return a Poly that is the exclusive-or of this polygon with the given polygon.
- * The returned polygon could be complex.
- *
- * @return the returned Poly will be an instance of PolyDefault.
- */
-gpcas.geometry.PolyDefault.prototype.xor = function (p) {
-  return Clip.xor(p, this, "PolyDefault")
-}
-
-/**
- * Return a Poly that is the difference of this polygon with the given polygon.
- * The returned polygon could be complex.
- *
- * @return the returned Poly will be an instance of PolyDefault.
- */
-gpcas.geometry.PolyDefault.prototype.difference = function (p) {
-  return Clip.difference(p, this, "PolyDefault")
-}
-
-/**
- * Return the area of the polygon in square units.
- */
-gpcas.geometry.PolyDefault.prototype.getArea = function () {
-  var area = 0.0
-  for (var i = 0; i < getNumInnerPoly(); i++) {
-    var p = getInnerPoly(i)
-    var tarea = p.getArea() * (p.isHole() ? -1.0 : 1.0)
-    area += tarea
-  }
-  return area
-}
-
-// -----------------------
-// --- Package Methods ---
-// -----------------------
-gpcas.geometry.PolyDefault.prototype.toString = function () {
-  var res = ""
-  var m_List = this.m_List
-  for (var i = 0; i < m_List.size(); i++) {
-    var p = this.getInnerPoly(i)
-    res += "InnerPoly(" + i + ").hole=" + p.isHole()
-    var points = []
-    for (var j = 0; j < p.getNumPoints(); j++) {
-      points.push(new Point(p.getX(j), p.getY(j)))
-    }
-    points = ArrayHelper.sortPointsClockwise(points)
-
-    for (var k = 0; k < points.length; k++) {
-      res += points[k].toString()
-    }
-  }
-  return res
-}
-// endregion PolyDefault
-
 // region TopPolygonNode
 gpcas.geometry.TopPolygonNode = function () {
   this.top_node
@@ -1036,7 +943,4 @@ gpcas.geometry.TopPolygonNode.prototype.print = function () {
 }
 // endregion TopPolygonNode
 
-const {
-  // Clip,
-  TopPolygonNode,
-} = gpcas.geometry
+const { TopPolygonNode } = gpcas.geometry
