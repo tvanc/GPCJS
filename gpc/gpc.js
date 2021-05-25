@@ -20,7 +20,7 @@ import PolyDefault from "./geometry/PolyDefault.js"
 import Polygon from "./geometry/Polygon.js"
 import PolygonNode from "./geometry/PolygonNode.js"
 // import PolySimple from "./geometry/PolySimple.js"
-// import Rectangle from "./geometry/Rectangle.js"
+import Rectangle from "./geometry/Rectangle.js"
 import ScanBeamTree from "./geometry/ScanBeamTree.js"
 import ScanBeamTreeEntries from "./geometry/ScanBeamTreeEntries.js"
 import StNode from "./geometry/StNode.js"
@@ -56,7 +56,7 @@ export const gpcas = {
     Polygon,
     PolygonNode,
     // PolySimple,
-    // Rectangle,
+    Rectangle,
     ScanBeamTree,
     ScanBeamTreeEntries,
     StNode,
@@ -2094,41 +2094,6 @@ gpcas.geometry.PolySimple.prototype.getArea = function () {
 }
 // endregion PolySimple
 
-// region Rectangle
-/////////////////////// Rectangle  ///////////////////
-gpcas.geometry.Rectangle = function (_x, _y, _w, _h) {
-  this.x = _x
-  this.y = _y
-  this.w = _w
-  this.h = _h
-}
-gpcas.geometry.Rectangle.prototype.getMaxY = function () {
-  return this.y + this.h
-}
-gpcas.geometry.Rectangle.prototype.getMinY = function () {
-  return this.y
-}
-gpcas.geometry.Rectangle.prototype.getMaxX = function () {
-  return this.x + this.w
-}
-gpcas.geometry.Rectangle.prototype.getMinX = function () {
-  return this.x
-}
-gpcas.geometry.Rectangle.prototype.toString = function () {
-  return (
-    "[" +
-    x.toString() +
-    " " +
-    y.toString() +
-    " " +
-    w.toString() +
-    " " +
-    h.toString() +
-    "]"
-  )
-}
-// endregion Rectangle
-
 // region TopPolygonNode
 gpcas.geometry.TopPolygonNode = function () {
   this.top_node
@@ -2292,6 +2257,5 @@ gpcas.geometry.TopPolygonNode.prototype.print = function () {
 const {
   PolySimple,
   // Clip,
-  Rectangle,
   TopPolygonNode,
 } = gpcas.geometry

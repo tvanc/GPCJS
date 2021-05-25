@@ -18,6 +18,6 @@ export default class Rectangle {
     return this.x
   }
   toString() {
-    return `[${x.toString()} ${y.toString()} ${w.toString()} ${h.toString()}]`
+    return `[${this.x.toString()} ${this.y.toString()} ${this.w.toString()} ${this.h.toString()}]`
   }
 }
