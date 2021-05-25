@@ -18,7 +18,7 @@ import LmtTable from "./geometry/LmtTable.js"
 import OperationType from "./geometry/OperationType.js"
 import PolyDefault from "./geometry/PolyDefault.js"
 import Polygon from "./geometry/Polygon.js"
-// import PolygonNode from "./geometry/PolygonNode.js"
+import PolygonNode from "./geometry/PolygonNode.js"
 // import PolySimple from "./geometry/PolySimple.js"
 // import Rectangle from "./geometry/Rectangle.js"
 import ScanBeamTree from "./geometry/ScanBeamTree.js"
@@ -54,7 +54,7 @@ export const gpcas = {
     OperationType,
     PolyDefault,
     Polygon,
-    // PolygonNode,
+    PolygonNode,
     // PolySimple,
     // Rectangle,
     ScanBeamTree,
@@ -1733,46 +1733,6 @@ gpcas.geometry.PolyDefault.prototype.toString = function () {
 }
 // endregion PolyDefault
 
-// region PolygonNode
-gpcas.geometry.PolygonNode = function (next, x, y) {
-  this.active /* Active flag / vertex count        */
-  this.hole /* Hole / external contour flag      */
-  this.v = [] /* Left and right vertex list ptrs   */
-  this.next /* Pointer to next polygon contour   */
-  this.proxy /* Pointer to actual structure used  */
-
-  /* Make v[Clip.LEFT] and v[Clip.RIGHT] point to new vertex */
-  var vn = new VertexNode(x, y)
-
-  this.v[Clip.LEFT] = vn
-  this.v[Clip.RIGHT] = vn
-
-  this.next = next
-  this.proxy = this /* Initialise proxy to point to p itself */
-  this.active = 1 //TRUE
-}
-gpcas.geometry.PolygonNode.prototype.add_right = function (x, y) {
-  var nv = new VertexNode(x, y)
-
-  /* Add vertex nv to the right end of the polygon's vertex list */
-  this.proxy.v[Clip.RIGHT].next = nv
-
-  /* Update proxy->v[Clip.RIGHT] to point to nv */
-  this.proxy.v[Clip.RIGHT] = nv
-}
-gpcas.geometry.PolygonNode.prototype.add_left = function (x, y) {
-  var proxy = this.proxy
-
-  var nv = new VertexNode(x, y)
-
-  /* Add vertex nv to the left end of the polygon's vertex list */
-  nv.next = proxy.v[Clip.LEFT]
-
-  /* Update proxy->[Clip.LEFT] to point to nv */
-  proxy.v[Clip.LEFT] = nv
-}
-// endregion PolygonNode
-
 // region PolySimple
 /**
  * <code>PolySimple</code> is a simple polygon - contains only one inner polygon.
@@ -2334,5 +2294,4 @@ const {
   // Clip,
   Rectangle,
   TopPolygonNode,
-  PolygonNode,
 } = gpcas.geometry
