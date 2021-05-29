@@ -1,6 +1,6 @@
 import Point from "./Point.js"
 import ArrayHelper from "../util/ArrayHelper.js"
-import { equals } from "../util/index.js"
+import { equals } from "../util/equals.js"
 
 export default class Polygon {
   maxTop

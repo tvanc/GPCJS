@@ -1,6 +1,6 @@
 /////////////// PolyDefault  /////////////////////
 import ArrayList from "../util/ArrayList.js"
-import { equals } from "../util/index.js"
+import { equals } from "../util/equals.js"
 import Point from "./Point.js"
 import Clip from "./Clip.js"
 import ArrayHelper from "../util/ArrayHelper.js"

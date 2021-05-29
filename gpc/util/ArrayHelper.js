@@ -1,5 +1,5 @@
 import Point from "../geometry/Point.js"
-import { equals } from "./index.js"
+import { equals } from "./equals.js"
 import ArrayList from "./ArrayList.js"
 
 export default class ArrayHelper {
