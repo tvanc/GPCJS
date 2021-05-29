@@ -1,5 +1,5 @@
-import { gpcas } from "./gpc/gpc.js"
 import Point from "./gpc/geometry/Point.js"
+import PolyDefault from "./gpc/geometry/PolyDefault"
 
 //define classes for GPC
 
@@ -81,7 +81,7 @@ function xor() {
 }
 
 function createPoly(points) {
-  const res = new gpcas.geometry.PolyDefault()
+  const res = new PolyDefault()
   for (let i = 0; i < points.length; i++) {
     res.addPoint(new Point(points[i][0], points[i][1]))
   }
