@@ -54,7 +54,7 @@ export default class TopPolygonNode {
     let nc = 0
 
     for (let polygon = this.top_node; polygon != null; polygon = polygon.next) {
-      if (!polygon.active) {
+      if (polygon.active !== 0) {
         /* Count the vertices in the current contour */
         let nv = 0
         for (let v = polygon.proxy.v[Clip.LEFT]; v != null; v = v.next) {

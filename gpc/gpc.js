@@ -777,35 +777,3 @@ Clip.clip = function (op, subj, clip, polyClass) {
   return result
 }
 // endregion Clip
-
-// region TopPolygonNode
-gpcas.geometry.TopPolygonNode.prototype.count_contours = function () {
-  var nc = 0
-
-  for (var polygon = this.top_node; polygon != null; polygon = polygon.next) {
-    if (polygon.active != 0) {
-      /* Count the vertices in the current contour */
-      var nv = 0
-      for (var v = polygon.proxy.v[Clip.LEFT]; v != null; v = v.next) {
-        nv++
-      }
-
-      /* Record valid vertex counts in the active field */
-      if (nv > 2) {
-        polygon.active = nv
-        nc++
-      } else {
-        /* Invalid contour: just free the heap */
-        //                  VertexNode nextv = null ;
-        //                  for (VertexNode v= polygon.proxy.v[Clip.LEFT]; (v != null); v = nextv)
-        //                  {
-        //                     nextv= v.next;
-        //                     v = null ;
-        //                  }
-        polygon.active = 0
-      }
-    }
-  }
-  return nc
-}
-// endregion TopPolygonNode
