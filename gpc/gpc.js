@@ -65,8 +65,6 @@ export const gpcas = {
 }
 
 // region Clip
-gpcas.geometry.Clip = Clip
-
 /**
  * <code>clip()</code> is the main method of the clipper algorithm.
  * This is where the conversion from really begins.
