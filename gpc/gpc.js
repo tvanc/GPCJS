@@ -776,8 +776,6 @@ Clip.clip = function (op, subj, clip, polyClass) {
 
   return result
 }
-
-gpcas.geometry.Clip = Clip
 // endregion Clip
 
 // region TopPolygonNode
