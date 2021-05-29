@@ -1,5 +1,4 @@
 import ArrayHelper from "./util/ArrayHelper.js"
-import Point from "./geometry/Point.js"
 import ArrayList from "./util/ArrayList.js"
 import Clip from "./geometry/Clip.js"
 import AetTree from "./geometry/AetTree.js"
@@ -28,8 +27,6 @@ import TopPolygonNode from "./geometry/TopPolygonNode.js"
 import VertexNode from "./geometry/VertexNode.js"
 import VertexType from "./geometry/VertexType.js"
 import WeilerAtherton from "./geometry/WeilerAtherton.js"
-
-import { equals } from "./util/index.js"
 
 export const gpcas = {
   util: {
