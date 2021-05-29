@@ -39,7 +39,7 @@ document.getElementById("intBtn").addEventListener("click", intersection)
 document.getElementById("unBtn").addEventListener("click", union)
 document.getElementById("xorBtn").addEventListener("click", xor)
 
-document.addEventListener("DOMContentLoaded", union)
+document.addEventListener("DOMContentLoaded", xor)
 
 function difference() {
   clearScreen()
