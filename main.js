@@ -1,5 +1,5 @@
-import Point from "./gpc/geometry/Point.js"
-import PolyDefault from "./gpc/geometry/PolyDefault"
+import Point from "./src/geometry/Point.js"
+import PolyDefault from "./src/geometry/PolyDefault"
 
 //define classes for GPC
 
@@ -26,8 +26,8 @@ const vertices2 = [
   [60, 167],
 ]
 
-let poly1 = createPoly(vertices1)
-let poly2 = createPoly(vertices2)
+const poly1 = createPoly(vertices1)
+const poly2 = createPoly(vertices2)
 
 //bring to screen
 drawPoly(poly1, "blue", 0, -30)
@@ -117,15 +117,7 @@ function drawPoly(polygon, strokeColor, ox, oy) {
   }
 }
 
-function drawSinglePoly(vertices, strokeColor, hole, ox, oy) {
-  if (ox === undefined) {
-    ox = 0
-  }
-
-  if (oy === undefined) {
-    oy = 0
-  }
-
+function drawSinglePoly(vertices, strokeColor, hole, ox = 0, oy = 0) {
   context.beginPath()
   context.moveTo(vertices[0][0] + ox, vertices[0][1] + oy)
 
