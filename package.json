@@ -2,8 +2,7 @@
   "name": "gpcjs",
   "type": "module",
   "version": "1.0.0",
-  "description": "GPC stands for General Polygon Clipping , a library written in C to solve polygon operation (difference, intersection, union , and xor). This library is powerfull enough and has been ported to many programming languages.\r Visit : http://www.cs.man.ac.uk/~toby/gpc/",
-  "dependencies": {},
+  "description": "GPC stands for General Polygon Clipping, a library written in C to solve polygon operation (difference, intersection, union , and xor). This library is powerful enough and has been ported to many programming languages.\r Visit : http://www.cs.man.ac.uk/~toby/gpc/",
   "main": "src/index.js",
   "devDependencies": {
     "live-server": "^1.2.1",
@@ -22,5 +21,5 @@
   "bugs": {
     "url": "https://github.com/tvanc/GPCJS/issues"
   },
-  "homepage": "https://github.com/tvanc/GPCJS#readme"
+  "homepage": "https://github.com/tvanc/GPCJS"
 }
