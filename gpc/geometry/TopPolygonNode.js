@@ -96,7 +96,7 @@ export default class TopPolygonNode {
         poly_node = npoly_node
       ) {
         npoly_node = poly_node.next
-        if (!poly_node.active) {
+        if (poly_node.active !== 0) {
           let poly = result
 
           if (num_contours > 1) {
