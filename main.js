@@ -1,5 +1,5 @@
 import Point from "./src/geometry/Point.js"
-import PolyDefault from "./src/geometry/PolyDefault"
+import PolyDefault from "./src/geometry/PolyDefault.js"
 
 const canvas = document.getElementById("canvas")
 const context = canvas.getContext("2d")

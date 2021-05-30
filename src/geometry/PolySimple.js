@@ -2,7 +2,7 @@ import ArrayList from "../util/ArrayList.js"
 import Point from "./Point.js"
 import Clip from "./Clip.js"
 import Rectangle from "./Rectangle.js"
-import Polygon from "./Polygon"
+import Polygon from "./Polygon.js"
 
 /**
  * <code>PolySimple</code> is a simple polygon - contains only one inner polygon.
