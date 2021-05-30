@@ -1,6 +1,7 @@
 import LineHelper from "./LineHelper.js"
 import IntersectionPoint from "./IntersectionPoint.js"
 import { equals } from "../util/equals.js"
+import PolySimple from "./PolySimple.js"
 
 export default class LineIntersection {
   static iteratePoints(points, s1, s2, e1, e2) {
