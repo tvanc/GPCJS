@@ -2,6 +2,7 @@ import ArrayList from "../util/ArrayList.js"
 import Point from "./Point.js"
 import Clip from "./Clip.js"
 import Rectangle from "./Rectangle.js"
+import Polygon from "./Polygon"
 
 /**
  * <code>PolySimple</code> is a simple polygon - contains only one inner polygon.
@@ -123,7 +124,7 @@ export default class PolySimple {
     } else if (args.length === 1) {
       if (args[0] instanceof Point) {
         this.addPoint(args[0])
-      } else if (args[0] instanceof Poly) {
+      } else if (args[0] instanceof Polygon) {
         this.addPoly(args[0])
       } else if (args[0] instanceof Array) {
         for (let k = 0; k < args[0].length; k++) {

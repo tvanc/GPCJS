@@ -4,5 +4,7 @@ export default class OperationType {
   static GPC_XOR = new OperationType("Exclusive or")
   static GPC_UNION = new OperationType("Union")
 
-  m_Type
+  constructor(type) {
+    this.m_Type = type
+  }
 }

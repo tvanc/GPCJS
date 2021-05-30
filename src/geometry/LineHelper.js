@@ -23,15 +23,15 @@ export default class LineHelper {
   }
 
   static cloneLine(line) {
-    var res = []
-    for (var i = 0; i < line.length; i++) {
+    const res = []
+    for (let i = 0; i < line.length; i++) {
       res[i] = [line[i][0], line[i][1]]
     }
     return res
   }
 
   static addLineToLine(line1, line2) {
-    for (var i = 0; i < line2.length; i++) {
+    for (let i = 0; i < line2.length; i++) {
       line1.push(this.clonePoint(line2[i]))
     }
   }
