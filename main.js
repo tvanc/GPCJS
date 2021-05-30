@@ -1,8 +1,6 @@
 import Point from "./src/geometry/Point.js"
 import PolyDefault from "./src/geometry/PolyDefault"
 
-//define classes for GPC
-
 const canvas = document.getElementById("canvas")
 const context = canvas.getContext("2d")
 
