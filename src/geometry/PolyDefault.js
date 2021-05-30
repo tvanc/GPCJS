@@ -1,4 +1,3 @@
-/////////////// PolyDefault  /////////////////////
 import ArrayList from "../util/ArrayList.js"
 import { equals } from "../util/equals.js"
 import Point from "./Point.js"
@@ -35,16 +34,13 @@ export default class PolyDefault {
    * Return true if the given object is equal to this one.
    */
   equals(obj) {
-    if (!(obj instanceof PolyDefault)) {
-      return false
-    }
-    var that = obj
-
-    if (this.m_IsHole != that.m_IsHole) return false
-    if (!equals(this.m_List, that.m_List)) return false
-
-    return true
+    return (
+      obj instanceof PolyDefault &&
+      this.m_IsHole === obj.m_IsHole &&
+      equals(this.m_List, obj.m_List)
+    )
   }
+
   /**
    * Return the hashCode of the object.
    *
@@ -52,47 +48,42 @@ export default class PolyDefault {
    * whenever their internal representation is the same (equals() is true)
    **/
   hashCode() {
-    var m_List = this.m_List
-
-    var result = 17
-    result = 37 * result + m_List.hashCode()
-    return result
+    // This is exactly what the original GPCJS code did. *shrug*
+    return 37 * 17 + this.m_List.hashCode()
   }
+
   /**
-   * Remove all of the points.  Creates an empty polygon.
+   * Remove all points. Creates an empty polygon.
    */
   clear() {
     this.m_List.clear()
   }
 
-  add(arg0, arg1) {
-    var args = []
-
-    args[0] = arg0
-    if (undefined !== arg1) {
-      args[1] = arg1
-    }
-    if (args.length == 2) {
-      this.addPointXY(args[0], args[1])
-    } else if (args.length == 1) {
-      if (args[0] instanceof Point) {
-        this.addPoint(args[0])
-      } else if (args[0] instanceof PolySimple) {
-        this.addPoly(args[0])
-      } else if (args[0] instanceof Array) {
-        var arr = args[0]
+  add(...args) {
+    const [arg1, arg2] = args
+    if (1 === arguments.length) {
+      if (arg1 instanceof Point) {
+        this.addPoint(arg1)
+      } else if (arg1 instanceof PolySimple) {
+        this.addPoly(arg1)
+      } else if (arg1 instanceof Array) {
+        // First argument is an array of two numbers
         if (
-          arr.length == 2 &&
-          arr[0] instanceof Number &&
-          arr[1] instanceof Number
+          arg1.length === 2 &&
+          arg1[0] instanceof Number &&
+          arg1[1] instanceof Number
         ) {
-          this.add(arr[0], arr[1])
-        } else {
-          for (var i = 0; i < args[0].length; i++) {
+          this.addPointXY(arg1[0], arg1[1])
+        }
+        // first argument was an array of points
+        else {
+          for (let i = 0; i < args[0].length; i++) {
             this.add(args[0][i])
           }
         }
       }
+    } else {
+      this.addPointXY(arg1, arg2)
     }
   }
   /**
@@ -111,9 +102,9 @@ export default class PolyDefault {
    * it will create an inner polygon of type <code>PolySimple</code>.
    */
   addPoint(p) {
-    var m_List = this.m_List
+    const m_List = this.m_List
 
-    if (m_List.size() == 0) {
+    if (m_List.size() === 0) {
       m_List.add(new PolySimple())
     }
     m_List.get(0).addPoint(p)
@@ -127,13 +118,11 @@ export default class PolyDefault {
    * that only simple polygons can be holes.
    */
   addPoly(p) {
-    var m_IsHole = this.m_IsHole
-    var m_List = this.m_List
-
-    if (m_List.size() > 0 && m_IsHole) {
+    if (this.m_List.size() > 0 && this.m_IsHole) {
       alert("ERROR : Cannot add polys to something designated as a hole.")
     }
-    m_List.add(p)
+
+    this.m_List.add(p)
   }
   /**
    * Return true if the polygon is empty
@@ -146,11 +135,11 @@ export default class PolyDefault {
    * <strong>WARNING</strong> Not supported on complex polygons.
    */
   getBounds() {
-    var m_List = this.m_List
-    if (m_List.size() == 0) {
+    const m_List = this.m_List
+    if (m_List.size() === 0) {
       return new Rectangle()
-    } else if (m_List.size() == 1) {
-      var ip = this.getInnerPoly(0)
+    } else if (m_List.size() === 1) {
+      const ip = this.getInnerPoly(0)
       return ip.getBounds()
     } else {
       console.log("getBounds not supported on complex poly.")
@@ -166,7 +155,7 @@ export default class PolyDefault {
    * Returns the number of inner polygons - inner polygons are assumed to return one here.
    */
   getNumInnerPoly() {
-    var m_List = this.m_List
+    const m_List = this.m_List
     return m_List.size()
   }
   /**
@@ -191,11 +180,11 @@ export default class PolyDefault {
   }
 
   isPointInside(point) {
-    var m_List = this.m_List
+    const m_List = this.m_List
     if (!m_List.get(0).isPointInside(point)) return false
 
-    for (var i = 0; i < m_List.size(); i++) {
-      var poly = m_List.get(i)
+    for (let i = 0; i < m_List.size(); i++) {
+      const poly = m_List.get(i)
       if (poly.isHole() && poly.isPointInside(point)) return false
     }
     return true
@@ -204,8 +193,7 @@ export default class PolyDefault {
    * Return the Y value of the point at the index in the first inner polygon
    */
   getY(index) {
-    var m_List = this.m_List
-    return m_List.get(0).getY(index)
+    return this.m_List.get(0).getY(index)
   }
 
   /**
@@ -215,13 +203,11 @@ export default class PolyDefault {
    * @throws IllegalStateException if called on a complex polygon.
    */
   isHole() {
-    var m_List = this.m_List
-    var m_IsHole = this.m_IsHole
-
-    if (m_List.size() > 1) {
+    if (this.m_List.size() > 1) {
       alert("Cannot call on a poly made up of more than one poly.")
     }
-    return m_IsHole
+
+    return this.m_IsHole
   }
 
   /**
@@ -230,10 +216,10 @@ export default class PolyDefault {
    * @throws IllegalStateException if called on a complex polygon.
    */
   setIsHole(isHole) {
-    var m_List = this.m_List
-    if (m_List.size() > 1) {
+    if (this.m_List.size() > 1) {
       alert("Cannot call on a poly made up of more than one poly.")
     }
+
     this.m_IsHole = isHole
   }
 
@@ -242,8 +228,7 @@ export default class PolyDefault {
    * This method should NOT be used outside the Clip algorithm.
    */
   isContributing(polyIndex) {
-    var m_List = this.m_List
-    return m_List.get(polyIndex).isContributing(0)
+    return this.m_List.get(polyIndex).isContributing(0)
   }
 
   /**
@@ -253,11 +238,10 @@ export default class PolyDefault {
    * @throws IllegalStateException if called on a complex polygon
    */
   setContributing(polyIndex, contributes) {
-    var m_List = this.m_List
-    if (m_List.size() != 1) {
+    if (this.m_List.size() !== 1) {
       alert("Only applies to polys of size 1")
     }
-    m_List.get(polyIndex).setContributing(0, contributes)
+    this.m_List.get(polyIndex).setContributing(0, contributes)
   }
 
   /**
@@ -304,10 +288,10 @@ export default class PolyDefault {
    * Return the area of the polygon in square units.
    */
   getArea() {
-    var area = 0.0
-    for (var i = 0; i < getNumInnerPoly(); i++) {
-      var p = getInnerPoly(i)
-      var tarea = p.getArea() * (p.isHole() ? -1.0 : 1.0)
+    let area = 0.0
+    for (let i = 0; i < this.getNumInnerPoly(); i++) {
+      const p = this.getInnerPoly(i)
+      const tarea = p.getArea() * (p.isHole() ? -1.0 : 1.0)
       area += tarea
     }
     return area
@@ -317,18 +301,21 @@ export default class PolyDefault {
   // --- Package Methods ---
   // -----------------------
   toString() {
-    var res = ""
-    var m_List = this.m_List
-    for (var i = 0; i < m_List.size(); i++) {
-      var p = this.getInnerPoly(i)
+    let res = ""
+    for (let i = 0; i < this.m_List.size(); i++) {
+      const p = this.getInnerPoly(i)
+
       res += "InnerPoly(" + i + ").hole=" + p.isHole()
-      var points = []
-      for (var j = 0; j < p.getNumPoints(); j++) {
+
+      let points = []
+
+      for (let j = 0; j < p.getNumPoints(); j++) {
         points.push(new Point(p.getX(j), p.getY(j)))
       }
+
       points = ArrayHelper.sortPointsClockwise(points)
 
-      for (var k = 0; k < points.length; k++) {
+      for (let k = 0; k < points.length; k++) {
         res += points[k].toString()
       }
     }
