@@ -70,8 +70,8 @@ export default class PolyDefault {
         // First argument is an array of two numbers
         if (
           arg1.length === 2 &&
-          arg1[0] instanceof Number &&
-          arg1[1] instanceof Number
+          typeof arg1[0] === "number" &&
+          typeof arg1[1] === "number"
         ) {
           this.addPointXY(arg1[0], arg1[1])
         }
