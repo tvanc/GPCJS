@@ -26,7 +26,6 @@ import StNode from "./geometry/StNode.js"
 import TopPolygonNode from "./geometry/TopPolygonNode.js"
 import VertexNode from "./geometry/VertexNode.js"
 import VertexType from "./geometry/VertexType.js"
-import WeilerAtherton from "./geometry/WeilerAtherton.js"
 
 export const gpcas = {
   util: {
@@ -60,6 +59,5 @@ export const gpcas = {
     TopPolygonNode,
     VertexNode,
     VertexType,
-    WeilerAtherton,
   },
 }
